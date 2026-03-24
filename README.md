@@ -1,26 +1,36 @@
-# Project Empty Template
+This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
-Este é um repositório de exemplo para você começar a desenvolver a questão, leia com atenção os requisitos do enunciado da questão na plataforma e seguia as boas práticas sobre como utilizar este repositório.
+## Getting Started
 
+First, run the development server:
 
-## Readme do Repositório
+```bash
+npm run dev
+# or
+yarn dev
+# or
+pnpm dev
+# or
+bun dev
+```
 
-- Deve conter o título do projeto
-- Uma descrição sobre o projeto em frase
-- Deve conter uma lista com linguagem, framework e/ou tecnologias usadas
-- Como instalar e usar o projeto (instruções)
-- Não esqueça o [.gitignore](https://www.toptal.com/developers/gitignore)
-- Se está usando github pessoal, referencie que é um challenge by coodesh:  
+Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
->  This is a challenge by [Coodesh](https://coodesh.com/)
+You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
 
-## Finalização e Instruções para a Apresentação
+This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
 
-1. Adicione o link do repositório com a sua solução na questão na plataforma
-2. Verifique se o Readme está bom e faça o commit final em seu repositório;
-3. Envie e aguarde as instruções para seguir. Caso o teste tenha apresentação de vídeo, dentro da tela de entrega será possível gravar após adicionar o link do repositório. Sucesso e boa sorte. =)
+## Learn More
 
+To learn more about Next.js, take a look at the following resources:
 
-## Suporte
+- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
+- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
 
-Para tirar dúvidas sobre o processo envie uma mensagem diretamente a um especialista no chat da plataforma. 
+You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+
+## Deploy on Vercel
+
+The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+
+Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
