@@ -17,6 +17,7 @@ export async function request<T>(
 ): Promise<T> {
   const response = await fetch(`${BASE_URL}${endpoint}`, {
     headers: { "Content-Type": "application/json", ...options?.headers },
+    cache: "no-store",
     ...options,
   });
 
