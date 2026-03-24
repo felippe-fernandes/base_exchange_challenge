@@ -1,3 +1,4 @@
+const { randomUUID } = require("crypto");
 const fs = require("fs");
 const path = require("path");
 
@@ -32,7 +33,6 @@ const INSTRUMENTS = [
   { symbol: "SOLUSD", minPrice: 80, maxPrice: 180 },
 ];
 
-const STATUSES = ["open", "partial", "executed", "cancelled"];
 const SIDES = ["buy", "sell"];
 
 function randomFloat(min, max, decimals = 2) {
@@ -58,10 +58,12 @@ function generateOrders(count) {
   const statusHistory = [];
   const executions = [];
 
-  let historyId = 1;
-  let executionId = 1;
+  const orderIds = [];
 
-  for (let i = 1; i <= count; i++) {
+  for (let i = 0; i < count; i++) {
+    const orderId = randomUUID();
+    orderIds.push(orderId);
+
     const instrument = randomElement(INSTRUMENTS);
     const side = randomElement(SIDES);
     const price = randomFloat(instrument.minPrice, instrument.maxPrice);
@@ -90,8 +92,8 @@ function generateOrders(count) {
       remainingQuantity = quantity;
     }
 
-    const order = {
-      id: String(i),
+    orders.push({
+      id: orderId,
       instrument: instrument.symbol,
       side,
       price,
@@ -100,28 +102,25 @@ function generateOrders(count) {
       status,
       createdAt: createdAt.toISOString(),
       updatedAt: updatedAt.toISOString(),
-    };
-
-    orders.push(order);
+    });
 
     // Status history: every order starts as "open"
     statusHistory.push({
-      id: String(historyId++),
-      orderId: String(i),
+      id: randomUUID(),
+      orderId,
       fromStatus: null,
       toStatus: "open",
       timestamp: createdAt.toISOString(),
       reason: "Order created",
     });
 
-    // Additional history based on final status
     if (status === "partial") {
       const partialAt = new Date(
         createdAt.getTime() + randomInt(1000, 1800000)
       );
       statusHistory.push({
-        id: String(historyId++),
-        orderId: String(i),
+        id: randomUUID(),
+        orderId,
         fromStatus: "open",
         toStatus: "partial",
         timestamp: partialAt.toISOString(),
@@ -134,22 +133,21 @@ function generateOrders(count) {
         createdAt.getTime() + randomInt(1000, 3600000)
       );
 
-      // Some executed orders go through partial first
       if (Math.random() < 0.3) {
         const partialAt = new Date(
           createdAt.getTime() + randomInt(1000, 1800000)
         );
         statusHistory.push({
-          id: String(historyId++),
-          orderId: String(i),
+          id: randomUUID(),
+          orderId,
           fromStatus: "open",
           toStatus: "partial",
           timestamp: partialAt.toISOString(),
           reason: "Partially matched",
         });
         statusHistory.push({
-          id: String(historyId++),
-          orderId: String(i),
+          id: randomUUID(),
+          orderId,
           fromStatus: "partial",
           toStatus: "executed",
           timestamp: executedAt.toISOString(),
@@ -157,8 +155,8 @@ function generateOrders(count) {
         });
       } else {
         statusHistory.push({
-          id: String(historyId++),
-          orderId: String(i),
+          id: randomUUID(),
+          orderId,
           fromStatus: "open",
           toStatus: "executed",
           timestamp: executedAt.toISOString(),
@@ -166,12 +164,11 @@ function generateOrders(count) {
         });
       }
 
-      // Create execution record
-      const counterpartId = randomInt(1, count);
+      const counterpartId = randomElement(orderIds);
       executions.push({
-        id: String(executionId++),
-        buyOrderId: side === "buy" ? String(i) : String(counterpartId),
-        sellOrderId: side === "sell" ? String(i) : String(counterpartId),
+        id: randomUUID(),
+        buyOrderId: side === "buy" ? orderId : counterpartId,
+        sellOrderId: side === "sell" ? orderId : counterpartId,
         instrument: instrument.symbol,
         price,
         quantity: quantity - remainingQuantity,
@@ -184,8 +181,8 @@ function generateOrders(count) {
         createdAt.getTime() + randomInt(1000, 7200000)
       );
       statusHistory.push({
-        id: String(historyId++),
-        orderId: String(i),
+        id: randomUUID(),
+        orderId,
         fromStatus: "open",
         toStatus: "cancelled",
         timestamp: cancelledAt.toISOString(),
