@@ -20,12 +20,20 @@ export function DataTableColumnHeader<TData, TValue>({
     return <div className={cn(className)}>{title}</div>;
   }
 
+  const handleSort = () => {
+    if (column.getIsSorted() === "desc") {
+      column.clearSorting();
+    } else {
+      column.toggleSorting(column.getIsSorted() === "asc");
+    }
+  };
+
   return (
     <Button
       variant="ghost"
       size="sm"
       className={cn("-ml-3 h-8", className)}
-      onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+      onClick={handleSort}
     >
       {title}
       {column.getIsSorted() === "desc" ? (
