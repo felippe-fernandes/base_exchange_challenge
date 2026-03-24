@@ -87,3 +87,10 @@ export async function getExecutions(orderId: string): Promise<Execution[]> {
   ]);
   return [...asBuy, ...asSell];
 }
+export async function getFilterValues(
+  field: string,
+  query?: string,
+): Promise<string[]> {
+  const params = query ? `?q=${encodeURIComponent(query)}` : "";
+  return request<string[]>(`/orders/filters/${field}${params}`);
+}
