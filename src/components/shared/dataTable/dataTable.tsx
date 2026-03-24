@@ -9,19 +9,20 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { DataTablePagination } from "./dataTablePagination";
 import { useDataTable } from "@/hooks/useDataTable";
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
   toolbar?: React.ReactNode;
+  pagination?: React.ReactNode;
 }
 
 export function DataTable<TData, TValue>({
   columns,
   data,
   toolbar,
+  pagination,
 }: DataTableProps<TData, TValue>) {
   const { table } = useDataTable({ columns, data });
 
@@ -73,7 +74,7 @@ export function DataTable<TData, TValue>({
           </TableBody>
         </Table>
       </div>
-      <DataTablePagination table={table} />
+      {pagination}
     </div>
   );
 }
