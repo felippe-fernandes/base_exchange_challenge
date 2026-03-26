@@ -15,9 +15,11 @@ export async function request<T>(
   endpoint: string,
   options?: RequestInit,
 ): Promise<T> {
+  const isServer = typeof window === "undefined";
+
   const response = await fetch(`${BASE_URL}${endpoint}`, {
     headers: { "Content-Type": "application/json", ...options?.headers },
-    cache: "no-store",
+    ...(isServer ? { cache: "no-store" as const } : {}),
     ...options,
   });
 

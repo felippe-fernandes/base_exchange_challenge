@@ -12,7 +12,16 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // Server scripts (plain JS, not TS)
+    "server/**",
   ]),
+  {
+    // TanStack Table v8 and Virtual are not yet React Compiler compatible.
+    // This will be resolved in TanStack Table v9.
+    rules: {
+      "react-hooks/incompatible-library": "off",
+    },
+  },
 ]);
 
 export default eslintConfig;
