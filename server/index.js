@@ -10,7 +10,11 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 const dbPath = join(__dirname, "db.json");
 
 const adapter = new JSONFile(dbPath);
-const db = new Low(adapter, { orders: [], executions: [], statusHistory: [] });
+const db = new Low(adapter, {
+  orders: [],
+  executions: [],
+  statusHistory: [],
+});
 await db.read();
 
 const root = new App();
@@ -29,7 +33,9 @@ root.get("/orders/filters/:field", async (req, res) => {
     return;
   }
 
-  let values = [...new Set(db.data.orders.map((order) => order[field]))].sort();
+  let values = [
+    ...new Set(db.data.orders.map((order) => order[field])),
+  ].sort();
 
   if (q) {
     const query = q.toLowerCase();
@@ -37,6 +43,61 @@ root.get("/orders/filters/:field", async (req, res) => {
   }
 
   res.json(values);
+});
+
+// Middleware: handle comma-separated filter values for /orders
+root.use("/orders", async (req, res, next) => {
+  const filterFields = ["instrument", "side", "status"];
+  const hasMultiValue = filterFields.some((f) =>
+    req.query[f]?.includes(",")
+  );
+
+  if (!hasMultiValue) {
+    next();
+    return;
+  }
+
+  await db.read();
+
+  let results = [...db.data.orders];
+
+  for (const field of filterFields) {
+    const value = req.query[field];
+    if (value && value.includes(",")) {
+      const values = value.split(",");
+      results = results.filter((order) => values.includes(order[field]));
+    } else if (value) {
+      results = results.filter((order) => order[field] === value);
+    }
+  }
+
+  const sort = req.query._sort;
+  if (sort) {
+    const desc = sort.startsWith("-");
+    const field = desc ? sort.slice(1) : sort;
+    results.sort((a, b) => {
+      if (a[field] < b[field]) return desc ? 1 : -1;
+      if (a[field] > b[field]) return desc ? -1 : 1;
+      return 0;
+    });
+  }
+
+  const page = parseInt(req.query._page) || 1;
+  const perPage = parseInt(req.query._per_page) || 10;
+  const total = results.length;
+  const pages = Math.ceil(total / perPage);
+  const start = (page - 1) * perPage;
+  const data = results.slice(start, start + perPage);
+
+  res.json({
+    data,
+    first: 1,
+    prev: page > 1 ? page - 1 : null,
+    next: page < pages ? page + 1 : null,
+    last: pages,
+    pages,
+    items: total,
+  });
 });
 
 // Mount json-server for everything else
