@@ -1,9 +1,9 @@
 import { format } from "date-fns";
 
-export function formatCurrency(value: number): string {
+export function formatCurrency(value: number, ccy: string): string {
   return new Intl.NumberFormat("en-US", {
     style: "currency",
-    currency: "BRL",
+    currency: ccy,
     minimumFractionDigits: 2,
   }).format(value);
 }

@@ -7,6 +7,12 @@ const ORDER_COUNT = 1200;
 
 const SIDES = ["buy", "sell"];
 
+function getCcy(symbol) {
+  if (symbol.endsWith("USD")) return "USD";
+  if (/\d+$/.test(symbol)) return "BRL";
+  return "USD";
+}
+
 function randomFloat(min, max, decimals = 2) {
   return parseFloat((Math.random() * (max - min) + min).toFixed(decimals));
 }
@@ -21,7 +27,7 @@ function randomElement(arr) {
 
 function randomDate(daysBack = 90) {
   const now = Date.now();
-  const past = now - daysBack * 24 * 60 * 60 * 1000;
+  const past = now - daysBack * 24 * 60 *0 * 1000;
   return new Date(past + Math.random() * (now - past));
 }
 
@@ -38,14 +44,15 @@ function generateOrders(count) {
 
     const instrument = randomElement(INSTRUMENTS);
     const side = randomElement(SIDES);
-    const price = randomFloat(instrument.minPrice, instrument.maxPrice);
+    const ccy = getCcy(instrument.symbol);
+    const priceValue = randomFloat(instrument.minPrice, instrument.maxPrice);
+    const price = { value: priceValue, ccy };
     const quantity = randomInt(1, 500) * 100;
     const createdAt = randomDate();
     const updatedAt = new Date(
       createdAt.getTime() + randomInt(0, 3600000)
     );
 
-    // Weighted status distribution: more open/executed than cancelled
     const statusRoll = Math.random();
     let status;
     if (statusRoll < 0.3) status = "open";
@@ -76,7 +83,6 @@ function generateOrders(count) {
       updatedAt: updatedAt.toISOString(),
     });
 
-    // Status history: every order starts as "open"
     statusHistory.push({
       id: randomUUID(),
       orderId,
@@ -142,7 +148,7 @@ function generateOrders(count) {
         buyOrderId: side === "buy" ? orderId : counterpartId,
         sellOrderId: side === "sell" ? orderId : counterpartId,
         instrument: instrument.symbol,
-        price,
+        price: { value: priceValue, ccy },
         quantity: quantity - remainingQuantity,
         executedAt: executedAt.toISOString(),
       });

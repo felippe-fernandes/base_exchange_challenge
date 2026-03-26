@@ -1,6 +1,6 @@
 "use client";
 
-import type { Order } from "@/types/order";
+import type { Order, Money } from "@/types/order";
 import { buildColumns } from "@/lib/tableUtils";
 import { StatusBadge } from "@/components/shared/statusBadge";
 import {
@@ -30,7 +30,10 @@ export const columns = buildColumns<Order>([
   {
     accessorKey: "price",
     title: "Price",
-    cell: ({ row }) => formatCurrency(row.getValue("price")),
+    cell: ({ row }) => {
+      const price = row.getValue<Money>("price");
+      return formatCurrency(price.value, price.ccy);
+    },
   },
   {
     accessorKey: "quantity",

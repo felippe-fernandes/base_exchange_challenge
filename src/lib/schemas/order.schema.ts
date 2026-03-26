@@ -9,11 +9,16 @@ export const OrderStatusSchema = z.enum([
   "cancelled",
 ]);
 
+export const MoneySchema = z.object({
+  value: z.number().positive(),
+  ccy: z.string().min(1),
+});
+
 export const OrderSchema = z.object({
   id: z.string(),
   instrument: z.string().min(1),
   side: OrderSideSchema,
-  price: z.number().positive(),
+  price: MoneySchema,
   quantity: z.number().int().positive(),
   remainingQuantity: z.number().int().min(0),
   status: OrderStatusSchema,
@@ -24,9 +29,7 @@ export const OrderSchema = z.object({
 export const CreateOrderSchema = z.object({
   instrument: z.string().min(1, "Instrument is required"),
   side: OrderSideSchema,
-  price: z
-    .number({ error: "Price is required" })
-    .positive("Price must be positive"),
+  price: MoneySchema,
   quantity: z
     .number({ error: "Quantity is required" })
     .int("Quantity must be a whole number")
@@ -38,7 +41,7 @@ export const ExecutionSchema = z.object({
   buyOrderId: z.string(),
   sellOrderId: z.string(),
   instrument: z.string().min(1),
-  price: z.number().positive(),
+  price: MoneySchema,
   quantity: z.number().int().positive(),
   executedAt: z.string().datetime(),
 });
