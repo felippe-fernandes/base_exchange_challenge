@@ -1,37 +1,25 @@
 import { Suspense } from "react";
 import { PageContainer } from "@/components/layout/page-container";
 import { OrderTable } from "@/components/orders/orderTable/orderTable";
-import { getOrders, type OrdersParams } from "@/lib/api/orders";
+import { getOrders } from "@/lib/api/orders";
+import { parseOrdersParams } from "@/lib/parseOrdersParams";
+import { DataTableSkeleton } from "@/components/shared/dataTable/dataTableSkeleton";
 
 interface OrdersPageProps {
   searchParams: Promise<Record<string, string | undefined>>;
 }
 
 export default async function OrdersPage({ searchParams }: OrdersPageProps) {
-  const params = await searchParams;
-
-  const page = params.page ? Number(params.page) : 1;
-  const perPage = params.perPage ? Number(params.perPage) : 10;
-
-  const ordersParams: OrdersParams = {
-    page,
-    perPage,
-    sort: params.sort || "-createdAt",
-    id: params.id,
-    instrument: params.instrument,
-    side: params.side,
-    status: params.status,
-  };
-
+  const ordersParams = parseOrdersParams(await searchParams);
   const ordersPromise = getOrders(ordersParams);
 
   return (
     <PageContainer title="Orders">
       <Suspense
         key={JSON.stringify(ordersParams)}
-        fallback={<div className="text-muted-foreground py-10 text-center">Loading orders...</div>}
+        fallback={<DataTableSkeleton columns={8} />}
       >
-        <OrderTable ordersPromise={ordersPromise} page={page} perPage={perPage} />
+        <OrderTable ordersPromise={ordersPromise} params={ordersParams} />
       </Suspense>
     </PageContainer>
   );

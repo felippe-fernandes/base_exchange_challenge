@@ -3,18 +3,29 @@
 import type { Order } from "@/types/order";
 import { buildColumns } from "@/lib/tableUtils";
 import { StatusBadge } from "@/components/shared/statusBadge";
-import { SideBadge } from "@/components/shared/sideBadge";
-import { ORDER_STATUS_COLORS, ORDER_STATUS_LABELS } from "@/lib/constants";
+import {
+  ORDER_STATUS_COLORS,
+  ORDER_STATUS_LABELS,
+  ORDER_SIDE_COLORS,
+  ORDER_SIDE_LABELS,
+} from "@/lib/constants";
 import { formatCurrency, formatNumber, formatDateTime } from "@/lib/formatters";
 
 export const columns = buildColumns<Order>([
-  { accessorKey: "id", title: "ID", filterable: true },
+  { accessorKey: "id", title: "ID", sortable: false },
   { accessorKey: "instrument", title: "Instrument", filterable: true },
   {
     accessorKey: "side",
     title: "Side",
     filterable: true,
-    cell: ({ row }) => <SideBadge side={row.getValue("side")} />,
+    cell: ({ row }) => (
+      <StatusBadge
+        status={row.getValue("side")}
+        colorMap={ORDER_SIDE_COLORS}
+        labelMap={ORDER_SIDE_LABELS}
+        variant="text"
+      />
+    ),
   },
   {
     accessorKey: "price",

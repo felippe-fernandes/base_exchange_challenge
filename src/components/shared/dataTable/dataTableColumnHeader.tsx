@@ -1,9 +1,11 @@
 "use client";
 
-import { type Column } from "@tanstack/react-table";
 import { ArrowDown, ArrowUp, ArrowUpDown } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
+import { type Column } from "@tanstack/react-table";
+import { useCallback, useMemo } from "react";
+import { useSearchParamsNavigation } from "@/hooks/useSearchParamsNavigation";
 
 interface DataTableColumnHeaderProps<TData, TValue> {
   column: Column<TData, TValue>;
@@ -16,17 +18,28 @@ export function DataTableColumnHeader<TData, TValue>({
   title,
   className,
 }: DataTableColumnHeaderProps<TData, TValue>) {
-  if (!column.getCanSort()) {
-    return <div className={cn(className)}>{title}</div>;
-  }
+  const { searchParams, navigate } = useSearchParamsNavigation();
 
-  const handleSort = () => {
-    if (column.getIsSorted() === "desc") {
-      column.clearSorting();
-    } else {
-      column.toggleSorting(column.getIsSorted() === "asc");
-    }
-  };
+  const accessorKey = column.id;
+  const currentSort = searchParams.get("sort") || "-createdAt";
+
+  const sortState = useMemo(() => {
+    if (currentSort === accessorKey) return "asc" as const;
+    if (currentSort === `-${accessorKey}`) return "desc" as const;
+    return null;
+  }, [currentSort, accessorKey]);
+
+  const handleSort = useCallback(() => {
+    navigate((params) => {
+      if (sortState === null) {
+        params.set("sort", accessorKey);
+      } else if (sortState === "asc") {
+        params.set("sort", `-${accessorKey}`);
+      } else {
+        params.delete("sort");
+      }
+    });
+  }, [sortState, accessorKey, navigate]);
 
   return (
     <Button
@@ -36,9 +49,9 @@ export function DataTableColumnHeader<TData, TValue>({
       onClick={handleSort}
     >
       {title}
-      {column.getIsSorted() === "desc" ? (
+      {sortState === "desc" ? (
         <ArrowDown className="ml-2 size-4" />
-      ) : column.getIsSorted() === "asc" ? (
+      ) : sortState === "asc" ? (
         <ArrowUp className="ml-2 size-4" />
       ) : (
         <ArrowUpDown className="ml-2 size-4" />
