@@ -20,7 +20,17 @@ await db.read();
 const root = new App();
 root.use(json());
 
-// Custom endpoint: get unique values for a filterable field
+root.use((req, res, next) => {
+  res.setHeader("Access-Control-Allow-Origin", "*");
+  res.setHeader("Access-Control-Allow-Methods", "GET, POST, PATCH, PUT, DELETE, OPTIONS");
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type");
+  if (req.method === "OPTIONS") {
+    res.status(204).end();
+    return;
+  }
+  next();
+});
+
 root.get("/orders/filters/:field", async (req, res) => {
   const { field } = req.params;
   const q = req.query?.q;
@@ -45,7 +55,6 @@ root.get("/orders/filters/:field", async (req, res) => {
   res.json(values);
 });
 
-// Middleware: handle comma-separated filter values for /orders
 root.use("/orders", async (req, res, next) => {
   const filterFields = ["instrument", "side", "status"];
   const hasMultiValue = filterFields.some((f) =>
@@ -75,9 +84,15 @@ root.use("/orders", async (req, res, next) => {
   if (sort) {
     const desc = sort.startsWith("-");
     const field = desc ? sort.slice(1) : sort;
+    const getValue = (obj) => {
+      const val = obj[field];
+      return val && typeof val === "object" && "value" in val ? val.value : val;
+    };
     results.sort((a, b) => {
-      if (a[field] < b[field]) return desc ? 1 : -1;
-      if (a[field] > b[field]) return desc ? -1 : 1;
+      const aVal = getValue(a);
+      const bVal = getValue(b);
+      if (aVal < bVal) return desc ? 1 : -1;
+      if (aVal > bVal) return desc ? -1 : 1;
       return 0;
     });
   }
@@ -100,7 +115,6 @@ root.use("/orders", async (req, res, next) => {
   });
 });
 
-// Mount json-server for everything else
 const jsonServerApp = createApp(db, { logger: false });
 root.use("/", jsonServerApp);
 

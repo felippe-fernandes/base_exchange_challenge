@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, Suspense } from "react";
+import { useState, Suspense, useMemo } from "react";
 import { Filter } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
@@ -13,6 +13,7 @@ import { useColumnFilter } from "@/hooks/useColumnFilter";
 import { getFilterValues } from "@/lib/api/orders";
 import { cn } from "@/lib/utils";
 import { use } from "react";
+import { ErrorBoundary } from "@/components/shared/errorBoundary";
 
 interface DataTableColumnFilterProps {
   field: string;
@@ -56,12 +57,31 @@ function FilterOptions({
   );
 }
 
+function FilterError({ onRetry }: { onRetry: () => void }) {
+  return (
+    <div className="py-2 text-center">
+      <p className="text-muted-foreground text-xs">Failed to load options.</p>
+      <button
+        type="button"
+        className="mt-1 text-xs text-primary hover:underline"
+        onClick={onRetry}
+      >
+        Retry
+      </button>
+    </div>
+  );
+}
+
 export function DataTableColumnFilter({ field, title }: DataTableColumnFilterProps) {
   const { selectedValues, toggleValue, clearFilter } = useColumnFilter(field);
   const [search, setSearch] = useState("");
   const [open, setOpen] = useState(false);
+  const [retryCount, setRetryCount] = useState(0);
 
-  const optionsPromise = open ? getFilterValues(field, search || undefined) : null;
+  const optionsPromise = useMemo(
+    () => (open ? getFilterValues(field, search || undefined) : null),
+    [open, field, search, retryCount],
+  );
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -89,20 +109,24 @@ export function DataTableColumnFilter({ field, title }: DataTableColumnFilterPro
           />
           <div className="max-h-48 overflow-auto">
             {optionsPromise && (
-              <Suspense
-                key={search}
-                fallback={
-                  <p className="text-muted-foreground py-2 text-center text-xs">
-                    Loading...
-                  </p>
-                }
+              <ErrorBoundary
+                key={`${search}-${retryCount}`}
+                fallback={<FilterError onRetry={() => setRetryCount((c) => c + 1)} />}
               >
-                <FilterOptions
-                  optionsPromise={optionsPromise}
-                  selectedValues={selectedValues}
-                  onToggle={toggleValue}
-                />
-              </Suspense>
+                <Suspense
+                  fallback={
+                    <p className="text-muted-foreground py-2 text-center text-xs">
+                      Loading...
+                    </p>
+                  }
+                >
+                  <FilterOptions
+                    optionsPromise={optionsPromise}
+                    selectedValues={selectedValues}
+                    onToggle={toggleValue}
+                  />
+                </Suspense>
+              </ErrorBoundary>
             )}
           </div>
           {selectedValues.length > 0 && (
