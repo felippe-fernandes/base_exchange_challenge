@@ -11,14 +11,19 @@ interface OrdersPageProps {
 
 export default async function OrdersPage({ searchParams }: OrdersPageProps) {
   const ordersParams = parseOrdersParams(await searchParams);
-  const ordersPromise = getOrders(ordersParams);
+
+  const page = ordersParams.page ?? 1;
+  const perPage = ordersParams.perPage ?? 50;
+  const fetchParams =
+    page > 1
+      ? { ...ordersParams, page: 1, perPage: perPage * page }
+      : ordersParams;
+
+  const ordersPromise = getOrders(fetchParams);
 
   return (
     <PageContainer title="Orders">
-      <Suspense
-        key={JSON.stringify(ordersParams)}
-        fallback={<DataTableSkeleton columns={8} />}
-      >
+      <Suspense fallback={<DataTableSkeleton columns={8} />}>
         <OrderTable ordersPromise={ordersPromise} params={ordersParams} />
       </Suspense>
     </PageContainer>

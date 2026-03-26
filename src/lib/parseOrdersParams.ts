@@ -6,7 +6,7 @@ export function parseOrdersParams(
   raw: Record<string, string | undefined>,
 ): OrdersParams {
   return {
-    page: 1,
+    page: raw.page ? Math.max(1, Number(raw.page)) : 1,
     perPage: raw.perPage ? Number(raw.perPage) : DEFAULTS.perPage,
     sort: raw.sort || DEFAULTS.sort,
     instrument: raw.instrument,

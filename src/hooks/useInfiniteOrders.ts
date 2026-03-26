@@ -3,7 +3,8 @@
 import type { OrdersParams, PaginatedOrders } from "@/lib/api/orders";
 import { getOrders } from "@/lib/api/orders";
 import type { Order } from "@/types/order";
-import { useCallback, useMemo, useState, useTransition } from "react";
+import { useCallback, useMemo, useRef, useState, useTransition } from "react";
+import { useSearchParamsNavigation } from "./useSearchParamsNavigation";
 
 interface UseInfiniteOrdersProps {
   initialData: PaginatedOrders;
@@ -11,9 +12,19 @@ interface UseInfiniteOrdersProps {
 }
 
 export function useInfiniteOrders({ initialData, params }: UseInfiniteOrdersProps) {
+  const { navigate } = useSearchParamsNavigation();
+  const initialPage = params.page ?? 1;
+
   const [extraPages, setExtraPages] = useState<Order[][]>([]);
-  const [currentPage, setCurrentPage] = useState(1);
+  const [currentPage, setCurrentPage] = useState(initialPage);
   const [isPending, startTransition] = useTransition();
+
+  const prevDataRef = useRef(initialData);
+  if (prevDataRef.current !== initialData) {
+    prevDataRef.current = initialData;
+    setExtraPages([]);
+    setCurrentPage(initialPage);
+  }
 
   const totalPages = initialData.pages;
   const totalItems = initialData.items;
@@ -28,8 +39,12 @@ export function useInfiniteOrders({ initialData, params }: UseInfiniteOrdersProp
       const result = await getOrders({ ...params, page: nextPage });
       setExtraPages((prev) => [...prev, result.data]);
       setCurrentPage(nextPage);
+
+      navigate((p) => {
+        p.set("page", String(nextPage));
+      }, { resetPage: false });
     });
-  }, [currentPage, hasNextPage, isPending, params]);
+  }, [currentPage, hasNextPage, isPending, params, navigate]);
 
   const orders = useMemo(
     () => [initialData.data, ...extraPages].flat(),

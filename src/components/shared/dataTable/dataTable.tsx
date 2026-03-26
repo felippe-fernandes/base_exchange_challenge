@@ -71,9 +71,12 @@ export function DataTable<TData, TValue>({
         <Table>
           <TableHeader className="sticky top-0 z-10 bg-background">
             {table.getHeaderGroups().map((headerGroup) => (
-              <TableRow key={headerGroup.id}>
+              <TableRow key={headerGroup.id} className="hover:bg-transparent">
                 {headerGroup.headers.map((header) => (
-                  <TableHead key={header.id}>
+                  <TableHead
+                    key={header.id}
+                    className="border-r last:border-r-0 px-3"
+                  >
                     {header.isPlaceholder
                       ? null
                       : flexRender(
