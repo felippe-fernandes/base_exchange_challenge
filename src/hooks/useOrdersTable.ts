@@ -1,29 +1,34 @@
 "use client";
 
+import { useCallback, useMemo, useRef, useTransition } from "react";
+import {
+  type ColumnDef,
+  getCoreRowModel,
+  useReactTable,
+} from "@tanstack/react-table";
 import type { OrdersParams, PaginatedOrders } from "@/lib/api/orders";
 import { getOrders } from "@/lib/api/orders";
 import type { Order } from "@/types/order";
-import { useCallback, useMemo, useRef, useState, useTransition } from "react";
+import { useOrdersTableStore } from "@/stores/ordersTableStore";
 import { useSearchParamsNavigation } from "./useSearchParamsNavigation";
 
-interface UseInfiniteOrdersProps {
+interface UseOrdersTableProps {
   initialData: PaginatedOrders;
   params: OrdersParams;
+  columns: ColumnDef<Order, unknown>[];
 }
 
-export function useInfiniteOrders({ initialData, params }: UseInfiniteOrdersProps) {
+export function useOrdersTable({ initialData, params, columns }: UseOrdersTableProps) {
   const { navigate } = useSearchParamsNavigation();
   const initialPage = params.page ?? 1;
 
-  const [extraPages, setExtraPages] = useState<Order[][]>([]);
-  const [currentPage, setCurrentPage] = useState(initialPage);
+  const { extraPages, currentPage, addPage, reset } = useOrdersTableStore();
   const [isPending, startTransition] = useTransition();
 
   const prevDataRef = useRef(initialData);
   if (prevDataRef.current !== initialData) {
     prevDataRef.current = initialData;
-    setExtraPages([]);
-    setCurrentPage(initialPage);
+    reset(initialPage);
   }
 
   const totalPages = initialData.pages;
@@ -37,19 +42,26 @@ export function useInfiniteOrders({ initialData, params }: UseInfiniteOrdersProp
 
     startTransition(async () => {
       const result = await getOrders({ ...params, page: nextPage });
-      setExtraPages((prev) => [...prev, result.data]);
-      setCurrentPage(nextPage);
+      addPage(nextPage, result.data);
 
       navigate((p) => {
         p.set("page", String(nextPage));
       }, { resetPage: false });
     });
-  }, [currentPage, hasNextPage, isPending, params, navigate]);
+  }, [currentPage, hasNextPage, isPending, params, navigate, addPage]);
 
   const orders = useMemo(
     () => [initialData.data, ...extraPages].flat(),
     [initialData.data, extraPages],
   );
 
-  return { orders, hasNextPage, isLoadingMore: isPending, loadMore, totalItems };
+  const table = useReactTable({
+    data: orders,
+    columns,
+    getCoreRowModel: getCoreRowModel(),
+    manualSorting: true,
+    manualFiltering: true,
+  });
+
+  return { table, orders, hasNextPage, isLoadingMore: isPending, loadMore, totalItems };
 }

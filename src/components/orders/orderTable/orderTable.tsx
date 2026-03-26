@@ -3,8 +3,7 @@
 import { use } from "react";
 import type { PaginatedOrders, OrdersParams } from "@/lib/api/orders";
 import { DataTable } from "@/components/shared/dataTable/dataTable";
-import { useDataTable } from "@/hooks/useDataTable";
-import { useInfiniteOrders } from "@/hooks/useInfiniteOrders";
+import { useOrdersTable } from "@/hooks/useOrdersTable";
 import { columns } from "./columns";
 
 interface OrderTableProps {
@@ -14,14 +13,11 @@ interface OrderTableProps {
 
 export function OrderTable({ ordersPromise, params }: OrderTableProps) {
   const initialData = use(ordersPromise);
-  const { orders, hasNextPage, isLoadingMore, loadMore, totalItems } =
-    useInfiniteOrders({ initialData, params });
-
-  const { table } = useDataTable({ columns, data: orders });
+  const { table, orders, hasNextPage, isLoadingMore, loadMore, totalItems } =
+    useOrdersTable({ initialData, params, columns });
 
   return (
     <DataTable
-      columns={columns}
       table={table}
       onLoadMore={loadMore}
       hasNextPage={hasNextPage}

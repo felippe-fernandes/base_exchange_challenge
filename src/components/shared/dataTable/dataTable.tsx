@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef, useCallback } from "react";
-import { type ColumnDef, type Table as TanstackTable, flexRender } from "@tanstack/react-table";
+import { type Table as TanstackTable, flexRender } from "@tanstack/react-table";
 import { useVirtualizer } from "@tanstack/react-virtual";
 import {
   Table,
@@ -12,8 +12,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 
-interface DataTableProps<TData, TValue> {
-  columns: ColumnDef<TData, TValue>[];
+interface DataTableProps<TData> {
   table: TanstackTable<TData>;
   onLoadMore?: () => void;
   hasNextPage?: boolean;
@@ -24,16 +23,16 @@ interface DataTableProps<TData, TValue> {
 const ROW_HEIGHT = 40;
 const SCROLL_THRESHOLD = 200;
 
-export function DataTable<TData, TValue>({
-  columns,
+export function DataTable<TData>({
   table,
   onLoadMore,
   hasNextPage,
   isLoadingMore,
   footer,
-}: DataTableProps<TData, TValue>) {
+}: DataTableProps<TData>) {
   const parentRef = useRef<HTMLDivElement>(null);
   const rows = table.getRowModel().rows;
+  const columnCount = table.getAllColumns().length;
 
   const virtualizer = useVirtualizer({
     count: rows.length,
@@ -117,7 +116,7 @@ export function DataTable<TData, TValue>({
             ) : (
               <TableRow>
                 <TableCell
-                  colSpan={columns.length}
+                  colSpan={columnCount}
                   className="h-24 text-center"
                 >
                   No results.
@@ -132,7 +131,7 @@ export function DataTable<TData, TValue>({
             {isLoadingMore && (
               <TableRow>
                 <TableCell
-                  colSpan={columns.length}
+                  colSpan={columnCount}
                   className="text-muted-foreground text-center"
                 >
                   Loading more...
