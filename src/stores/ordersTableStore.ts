@@ -1,24 +1,17 @@
 import { create } from "zustand";
-import type { Order } from "@/types/order";
 
 interface OrdersTableState {
-  extraPages: Order[][];
-  currentPage: number;
+  totalItems: number;
+  isLoadingMore: boolean;
 
-  addPage: (page: number, data: Order[]) => void;
-  reset: (page: number) => void;
+  setTotalItems: (items: number) => void;
+  setIsLoadingMore: (loading: boolean) => void;
 }
 
 export const useOrdersTableStore = create<OrdersTableState>()((set) => ({
-  extraPages: [],
-  currentPage: 1,
+  totalItems: 0,
+  isLoadingMore: false,
 
-  addPage: (page, data) =>
-    set((state) => ({
-      extraPages: [...state.extraPages, data],
-      currentPage: page,
-    })),
-
-  reset: (page) =>
-    set({ extraPages: [], currentPage: page }),
+  setTotalItems: (items) => set({ totalItems: items }),
+  setIsLoadingMore: (loading) => set({ isLoadingMore: loading }),
 }));

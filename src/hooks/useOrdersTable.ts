@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useMemo, useRef, useTransition } from "react";
+import { useCallback, useMemo, useRef, useState, useTransition } from "react";
 import {
   type ColumnDef,
   getCoreRowModel,
@@ -20,19 +20,23 @@ interface UseOrdersTableProps {
 
 export function useOrdersTable({ initialData, params, columns }: UseOrdersTableProps) {
   const { navigate } = useSearchParamsNavigation();
+  const { setTotalItems } = useOrdersTableStore();
   const initialPage = params.page ?? 1;
 
-  const { extraPages, currentPage, addPage, reset } = useOrdersTableStore();
+  const [extraPages, setExtraPages] = useState<Order[][]>([]);
+  const [currentPage, setCurrentPage] = useState(initialPage);
   const [isPending, startTransition] = useTransition();
 
   const prevDataRef = useRef(initialData);
   if (prevDataRef.current !== initialData) {
     prevDataRef.current = initialData;
-    reset(initialPage);
+    setExtraPages([]);
+    setCurrentPage(initialPage);
   }
 
-  const totalPages = initialData.pages;
+  const perPage = params.perPage ?? 50;
   const totalItems = initialData.items;
+  const totalPages = Math.ceil(totalItems / perPage);
   const hasNextPage = currentPage < totalPages;
 
   const loadMore = useCallback(() => {
@@ -42,13 +46,15 @@ export function useOrdersTable({ initialData, params, columns }: UseOrdersTableP
 
     startTransition(async () => {
       const result = await getOrders({ ...params, page: nextPage });
-      addPage(nextPage, result.data);
+      setExtraPages((prev) => [...prev, result.data]);
+      setCurrentPage(nextPage);
+      setTotalItems(result.items);
 
       navigate((p) => {
         p.set("page", String(nextPage));
       }, { resetPage: false });
     });
-  }, [currentPage, hasNextPage, isPending, params, navigate, addPage]);
+  }, [currentPage, hasNextPage, isPending, params, navigate, setTotalItems]);
 
   const orders = useMemo(
     () => [initialData.data, ...extraPages].flat(),
