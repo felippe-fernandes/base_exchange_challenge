@@ -1,37 +1,9 @@
 const { randomUUID } = require("crypto");
 const fs = require("fs");
 const path = require("path");
+const { INSTRUMENTS } = require("./instruments");
 
-const INSTRUMENTS = [
-  // Acoes brasileiras
-  { symbol: "PETR4", minPrice: 25, maxPrice: 40 },
-  { symbol: "VALE3", minPrice: 60, maxPrice: 85 },
-  { symbol: "ITUB4", minPrice: 28, maxPrice: 38 },
-  { symbol: "BBDC4", minPrice: 12, maxPrice: 18 },
-  { symbol: "ABEV3", minPrice: 10, maxPrice: 16 },
-  { symbol: "WEGE3", minPrice: 35, maxPrice: 55 },
-  { symbol: "RENT3", minPrice: 40, maxPrice: 65 },
-  { symbol: "BBAS3", minPrice: 24, maxPrice: 35 },
-  { symbol: "SUZB3", minPrice: 45, maxPrice: 65 },
-  { symbol: "HAPV3", minPrice: 3, maxPrice: 6 },
-  { symbol: "MGLU3", minPrice: 1, maxPrice: 4 },
-  { symbol: "B3SA3", minPrice: 10, maxPrice: 15 },
-  { symbol: "ELET3", minPrice: 35, maxPrice: 50 },
-  { symbol: "CSAN3", minPrice: 12, maxPrice: 20 },
-  { symbol: "RADL3", minPrice: 22, maxPrice: 30 },
-  // Acoes americanas
-  { symbol: "AAPL", minPrice: 160, maxPrice: 200 },
-  { symbol: "MSFT", minPrice: 350, maxPrice: 430 },
-  { symbol: "GOOGL", minPrice: 130, maxPrice: 175 },
-  { symbol: "AMZN", minPrice: 150, maxPrice: 200 },
-  { symbol: "TSLA", minPrice: 180, maxPrice: 280 },
-  { symbol: "NVDA", minPrice: 600, maxPrice: 950 },
-  { symbol: "META", minPrice: 400, maxPrice: 550 },
-  // Cripto
-  { symbol: "BTCUSD", minPrice: 55000, maxPrice: 72000 },
-  { symbol: "ETHUSD", minPrice: 2800, maxPrice: 4000 },
-  { symbol: "SOLUSD", minPrice: 80, maxPrice: 180 },
-];
+const ORDER_COUNT = 1200;
 
 const SIDES = ["buy", "sell"];
 
@@ -198,8 +170,6 @@ function generateOrders(count) {
 
   return { orders, statusHistory, executions };
 }
-
-const ORDER_COUNT = 1200;
 
 console.log(`Generating ${ORDER_COUNT} orders...`);
 const db = generateOrders(ORDER_COUNT);
