@@ -11,7 +11,7 @@ import {
 import type { OrdersParams, PaginatedOrders } from "@/lib/api/orders";
 import { getOrders } from "@/lib/api/orders";
 import type { Order } from "@/types/order";
-import { useOrdersTableStore } from "@/stores/ordersTableStore";
+import { useDataTableStore } from "@/stores/dataTableStore";
 import { useUserConfigStore } from "@/stores/userConfigStore";
 import { useSearchParamsNavigation } from "./useSearchParamsNavigation";
 
@@ -25,7 +25,7 @@ interface UseOrdersTableProps {
 
 export function useOrdersTable({ initialData, params, columns }: UseOrdersTableProps) {
   const { navigate } = useSearchParamsNavigation();
-  const { setTotalItems } = useOrdersTableStore();
+  const { setTotalItems } = useDataTableStore();
   const { columnOrder, setColumnOrder, columnSizing: savedSizing, setColumnSizing } = useUserConfigStore();
   const initialPage = params.page ?? 1;
 
