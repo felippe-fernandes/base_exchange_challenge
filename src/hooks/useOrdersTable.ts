@@ -4,6 +4,7 @@ import { useCallback, useMemo, useRef, useState, useTransition } from "react";
 import {
   type ColumnDef,
   type ColumnSizingState,
+  type ExpandedState,
   getCoreRowModel,
   useReactTable,
 } from "@tanstack/react-table";
@@ -32,6 +33,7 @@ export function useOrdersTable({ initialData, params, columns }: UseOrdersTableP
   const [currentPage, setCurrentPage] = useState(initialPage);
   const [isPending, startTransition] = useTransition();
   const [localSizing, setLocalSizing] = useState<ColumnSizingState>(savedSizing);
+  const [expanded, setExpanded] = useState<ExpandedState>({});
   const saveTimerRef = useRef<ReturnType<typeof setTimeout>>(undefined);
 
   const prevDataRef = useRef(initialData);
@@ -39,6 +41,7 @@ export function useOrdersTable({ initialData, params, columns }: UseOrdersTableP
     prevDataRef.current = initialData;
     setExtraPages([]);
     setCurrentPage(initialPage);
+    setExpanded({});
   }
 
   const perPage = params.perPage ?? 50;
@@ -71,10 +74,14 @@ export function useOrdersTable({ initialData, params, columns }: UseOrdersTableP
   const table = useReactTable({
     data: orders,
     columns,
+    getRowId: (row) => row.id,
     state: {
       columnOrder,
       columnSizing: localSizing,
+      expanded,
     },
+    onExpandedChange: setExpanded,
+    getRowCanExpand: () => true,
     onColumnOrderChange: (updater) => {
       const newOrder = typeof updater === "function" ? updater(columnOrder) : updater;
       setColumnOrder(newOrder);

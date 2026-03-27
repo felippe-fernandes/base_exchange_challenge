@@ -1,15 +1,14 @@
 "use client";
 
 import { useRef } from "react";
-import { type Table as TanstackTable, flexRender } from "@tanstack/react-table";
+import { type Row, type Table as TanstackTable, flexRender } from "@tanstack/react-table";
 import { useVirtualizer } from "@tanstack/react-virtual";
-import { GripVertical } from "lucide-react";
+import { ChevronRight, GripVertical } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useColumnDragReorder } from "@/hooks/useColumnDragReorder";
 import { DataTableActiveFilters } from "./dataTableActiveFilters";
 import {
   Table,
-  TableBody,
   TableCell,
   TableHead,
   TableHeader,
@@ -22,6 +21,7 @@ interface DataTableProps<TData> {
   hasNextPage?: boolean;
   isLoadingMore?: boolean;
   footer?: React.ReactNode;
+  renderSubComponent?: (row: Row<TData>) => React.ReactNode;
 }
 
 const ROW_HEIGHT = 40;
@@ -33,10 +33,12 @@ export function DataTable<TData>({
   hasNextPage,
   isLoadingMore,
   footer,
+  renderSubComponent,
 }: DataTableProps<TData>) {
   const parentRef = useRef<HTMLDivElement>(null);
   const rows = table.getRowModel().rows;
-  const columnCount = table.getAllColumns().length;
+  const visibleColumns = table.getAllColumns().filter((c) => c.getCanHide());
+  const columnCount = visibleColumns.length;
   const { onDragStart, onDragOver, onDragEnd, onDrop } = useColumnDragReorder(table);
 
   const virtualizer = useVirtualizer({
@@ -70,75 +72,103 @@ export function DataTable<TData>({
         onScroll={handleScroll}
         className="max-h-[calc(100vh-240px)] overflow-auto rounded-md border"
       >
-        <Table style={{ width: table.getCenterTotalSize() }}>
+        <Table>
           <TableHeader className="sticky top-0 z-10 bg-background shadow-[inset_0_-1px_0_0_var(--border)]">
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id} className="hover:bg-transparent">
-                {headerGroup.headers.map((header) => (
-                  <TableHead
-                    key={header.id}
-                    className="relative border-r last:border-r-0 px-3"
-                    style={{ width: header.getSize() }}
-                    onDragOver={onDragOver}
-                    onDrop={(e) => onDrop(e, header.column.id)}
-                  >
-                    <div className="flex items-center">
-                      <span
-                        draggable
-                        onDragStart={(e) => onDragStart(e, header.column.id)}
-                        onDragEnd={onDragEnd}
-                        className="cursor-grab active:cursor-grabbing text-muted-foreground/50 hover:text-muted-foreground -ml-1 mr-0.5 shrink-0"
-                      >
-                        <GripVertical className="size-3.5" />
-                      </span>
-                      {header.isPlaceholder
-                        ? null
-                        : flexRender(
-                            header.column.columnDef.header,
-                            header.getContext(),
-                          )}
-                    </div>
-                    <div
-                      onMouseDown={header.getResizeHandler()}
-                      onTouchStart={header.getResizeHandler()}
-                      onDoubleClick={() => header.column.resetSize()}
-                      className={cn(
-                        "absolute right-0 top-0 h-full w-1 cursor-col-resize select-none touch-none hover:bg-primary/50",
-                        header.column.getIsResizing() && "bg-primary",
-                      )}
-                    />
-                  </TableHead>
-                ))}
+                {headerGroup.headers.filter((h) => h.column.getCanHide()).map((header) => (
+                    <TableHead
+                      key={header.id}
+                      className="relative border-r last:border-r-0 px-3"
+                      style={{ width: header.getSize() }}
+                      onDragOver={onDragOver}
+                      onDrop={(e) => onDrop(e, header.column.id)}
+                    >
+                      <div className="flex items-center">
+                        <span
+                          draggable
+                          onDragStart={(e) => onDragStart(e, header.column.id)}
+                          onDragEnd={onDragEnd}
+                          className="cursor-grab active:cursor-grabbing text-muted-foreground/50 hover:text-muted-foreground -ml-1 mr-0.5 shrink-0"
+                        >
+                          <GripVertical className="size-3.5" />
+                        </span>
+                        {header.isPlaceholder
+                          ? null
+                          : flexRender(
+                              header.column.columnDef.header,
+                              header.getContext(),
+                            )}
+                      </div>
+                      <div
+                        onMouseDown={header.getResizeHandler()}
+                        onTouchStart={header.getResizeHandler()}
+                        onDoubleClick={() => header.column.resetSize()}
+                        className={cn(
+                          "absolute right-0 top-0 h-full w-1 cursor-col-resize select-none touch-none hover:bg-primary/50",
+                          header.column.getIsResizing() && "bg-primary",
+                        )}
+                      />
+                    </TableHead>
+                  ))}
               </TableRow>
             ))}
           </TableHeader>
-          <TableBody>
-            {paddingTop > 0 && (
+          {paddingTop > 0 && (
+            <tbody>
               <tr>
                 <td style={{ height: paddingTop }} />
               </tr>
-            )}
-            {virtualRows.length > 0 ? (
-              virtualRows.map((virtualRow) => {
-                const row = rows[virtualRow.index];
-                return (
-                  <TableRow
-                    key={row.id}
-                    data-index={virtualRow.index}
-                    ref={virtualizer.measureElement}
-                  >
-                    {row.getVisibleCells().map((cell) => (
+            </tbody>
+          )}
+          {virtualRows.length > 0 ? (
+            virtualRows.map((virtualRow) => {
+              const row = rows[virtualRow.index];
+              const isExpanded = row.getIsExpanded() && renderSubComponent;
+              return (
+                <tbody
+                  key={row.id}
+                  data-index={virtualRow.index}
+                  ref={virtualizer.measureElement}
+                >
+                  <TableRow>
+                    {row.getVisibleCells().filter((c) => c.column.getCanHide()).map((cell, i) => (
                       <TableCell key={cell.id} style={{ width: cell.column.getSize() }}>
-                        {flexRender(
-                          cell.column.columnDef.cell,
-                          cell.getContext(),
-                        )}
+                        <div className="flex items-center">
+                          {i === 0 && renderSubComponent && (
+                            <button
+                              type="button"
+                              onClick={row.getToggleExpandedHandler()}
+                              className="mr-1 shrink-0 text-muted-foreground/50 hover:text-muted-foreground"
+                            >
+                              <ChevronRight
+                                className={cn(
+                                  "size-4 transition-transform duration-200",
+                                  row.getIsExpanded() && "rotate-90",
+                                )}
+                              />
+                            </button>
+                          )}
+                          {flexRender(
+                            cell.column.columnDef.cell,
+                            cell.getContext(),
+                          )}
+                        </div>
                       </TableCell>
                     ))}
                   </TableRow>
-                );
-              })
-            ) : (
+                  {isExpanded && (
+                    <tr>
+                      <td colSpan={columnCount} className="p-0">
+                        {renderSubComponent(row)}
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              );
+            })
+          ) : (
+            <tbody>
               <TableRow>
                 <TableCell
                   colSpan={columnCount}
@@ -147,13 +177,17 @@ export function DataTable<TData>({
                   No results.
                 </TableCell>
               </TableRow>
-            )}
-            {paddingBottom > 0 && (
+            </tbody>
+          )}
+          {paddingBottom > 0 && (
+            <tbody>
               <tr>
                 <td style={{ height: paddingBottom }} />
               </tr>
-            )}
-            {isLoadingMore && (
+            </tbody>
+          )}
+          {isLoadingMore && (
+            <tbody>
               <TableRow>
                 <TableCell
                   colSpan={columnCount}
@@ -162,8 +196,8 @@ export function DataTable<TData>({
                   Loading more...
                 </TableCell>
               </TableRow>
-            )}
-          </TableBody>
+            </tbody>
+          )}
         </Table>
       </div>
       {footer}
