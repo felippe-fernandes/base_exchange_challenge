@@ -3,6 +3,7 @@
 import { useCallback, useMemo, useRef, useState, useTransition } from "react";
 import {
   type ColumnDef,
+  type ColumnSizingState,
   getCoreRowModel,
   useReactTable,
 } from "@tanstack/react-table";
@@ -10,7 +11,10 @@ import type { OrdersParams, PaginatedOrders } from "@/lib/api/orders";
 import { getOrders } from "@/lib/api/orders";
 import type { Order } from "@/types/order";
 import { useOrdersTableStore } from "@/stores/ordersTableStore";
+import { useUserConfigStore } from "@/stores/userConfigStore";
 import { useSearchParamsNavigation } from "./useSearchParamsNavigation";
+
+const RESIZE_SAVE_DELAY = 300;
 
 interface UseOrdersTableProps {
   initialData: PaginatedOrders;
@@ -21,11 +25,14 @@ interface UseOrdersTableProps {
 export function useOrdersTable({ initialData, params, columns }: UseOrdersTableProps) {
   const { navigate } = useSearchParamsNavigation();
   const { setTotalItems } = useOrdersTableStore();
+  const { columnOrder, setColumnOrder, columnSizing: savedSizing, setColumnSizing } = useUserConfigStore();
   const initialPage = params.page ?? 1;
 
   const [extraPages, setExtraPages] = useState<Order[][]>([]);
   const [currentPage, setCurrentPage] = useState(initialPage);
   const [isPending, startTransition] = useTransition();
+  const [localSizing, setLocalSizing] = useState<ColumnSizingState>(savedSizing);
+  const saveTimerRef = useRef<ReturnType<typeof setTimeout>>(undefined);
 
   const prevDataRef = useRef(initialData);
   if (prevDataRef.current !== initialData) {
@@ -64,6 +71,23 @@ export function useOrdersTable({ initialData, params, columns }: UseOrdersTableP
   const table = useReactTable({
     data: orders,
     columns,
+    state: {
+      columnOrder,
+      columnSizing: localSizing,
+    },
+    onColumnOrderChange: (updater) => {
+      const newOrder = typeof updater === "function" ? updater(columnOrder) : updater;
+      setColumnOrder(newOrder);
+    },
+    onColumnSizingChange: (updater) => {
+      setLocalSizing((prev) => {
+        const next = typeof updater === "function" ? updater(prev) : updater;
+        clearTimeout(saveTimerRef.current);
+        saveTimerRef.current = setTimeout(() => setColumnSizing(next), RESIZE_SAVE_DELAY);
+        return next;
+      });
+    },
+    columnResizeMode: "onChange",
     getCoreRowModel: getCoreRowModel(),
     manualSorting: true,
     manualFiltering: true,
