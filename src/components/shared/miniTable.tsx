@@ -1,3 +1,4 @@
+import { cn } from "@/lib/utils";
 import {
   Table,
   TableBody,
@@ -30,7 +31,7 @@ export function MiniTable<TData>({
   className,
 }: MiniTableProps<TData>) {
   return (
-    <Table className={className}>
+    <Table className={cn("table-fixed", className)}>
       <TableHeader>
         <TableRow className="hover:bg-transparent">
           {columns.map((col) => (
@@ -53,13 +54,14 @@ export function MiniTable<TData>({
         ) : (
           data.map((row) => (
             <TableRow key={getRowKey(row)}>
-              {columns.map((col) => (
-                <TableCell key={col.key} className={col.className}>
-                  {col.cell
-                    ? col.cell(row)
-                    : String((row as Record<string, unknown>)[col.key] ?? "")}
-                </TableCell>
-              ))}
+              {columns.map((col) => {
+                const raw = String((row as Record<string, unknown>)[col.key] ?? "");
+                return (
+                  <TableCell key={col.key} title={raw} className={cn("truncate", col.className)}>
+                    {col.cell ? col.cell(row) : raw}
+                  </TableCell>
+                );
+              })}
             </TableRow>
           ))
         )}

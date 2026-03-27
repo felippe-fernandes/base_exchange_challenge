@@ -142,7 +142,7 @@ export function DataTable<TData>({
                   >
                     {row.getVisibleCells().filter((c) => c.column.getCanHide()).map((cell, i) => (
                       <TableCell key={cell.id} style={{ width: cell.column.getSize() }}>
-                        <div className="flex items-center">
+                        <div className="flex items-center overflow-hidden">
                           {i === 0 && renderSubComponent && (
                             <button
                               type="button"
@@ -157,10 +157,12 @@ export function DataTable<TData>({
                               />
                             </button>
                           )}
-                          {flexRender(
-                            cell.column.columnDef.cell,
-                            cell.getContext(),
-                          )}
+                          <span className="truncate" title={String(cell.getValue() ?? "")}>
+                            {flexRender(
+                              cell.column.columnDef.cell,
+                              cell.getContext(),
+                            )}
+                          </span>
                         </div>
                       </TableCell>
                     ))}
