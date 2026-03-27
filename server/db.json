@@ -39503,6 +39503,366 @@
       },
       "quantity": 34100,
       "executedAt": "2026-01-06T16:33:40.534Z"
+    },
+    {
+      "id": "a580c961-8087-434b-8b04-d2d0f3930c67",
+      "buyOrderId": "4b545ea6-bd6b-4d2f-95ff-a6078f6be7da",
+      "sellOrderId": "44f4da21-0365-4fa0-ba4f-05b19312032e",
+      "instrument": "AAPL",
+      "price": {
+        "value": 115.75,
+        "ccy": "USD"
+      },
+      "quantity": 5629,
+      "executedAt": "2026-02-01T08:30:00.000Z"
+    },
+    {
+      "id": "16e6f49d-3b53-405a-8d87-31c974e6d0d6",
+      "buyOrderId": "f46a39f1-3969-435c-a7b7-45c829360ecb",
+      "sellOrderId": "4b545ea6-bd6b-4d2f-95ff-a6078f6be7da",
+      "instrument": "MSFT",
+      "price": {
+        "value": 184.78,
+        "ccy": "BRL"
+      },
+      "quantity": 2976,
+      "executedAt": "2026-02-02T09:30:00.000Z"
+    },
+    {
+      "id": "51bed66e-abed-4cf5-9436-0982dee7c3ab",
+      "buyOrderId": "4b545ea6-bd6b-4d2f-95ff-a6078f6be7da",
+      "sellOrderId": "aae5e76f-48f9-45d6-8d1a-c110159a35d0",
+      "instrument": "GOOGL",
+      "price": {
+        "value": 406.44,
+        "ccy": "USD"
+      },
+      "quantity": 4959,
+      "executedAt": "2026-02-03T10:30:00.000Z"
+    },
+    {
+      "id": "10af1de5-0b96-4209-b422-ba0388cfcc04",
+      "buyOrderId": "3c00c946-48e4-4a5f-b178-b1af8c67e85a",
+      "sellOrderId": "4b545ea6-bd6b-4d2f-95ff-a6078f6be7da",
+      "instrument": "AMZN",
+      "price": {
+        "value": 350.21,
+        "ccy": "BRL"
+      },
+      "quantity": 4879,
+      "executedAt": "2026-02-04T11:30:00.000Z"
+    },
+    {
+      "id": "a2380fdd-59c1-4fa3-adfd-07d97d896dab",
+      "buyOrderId": "4b545ea6-bd6b-4d2f-95ff-a6078f6be7da",
+      "sellOrderId": "932e4195-7c0b-466d-802f-464654597e1b",
+      "instrument": "TSLA",
+      "price": {
+        "value": 382.79,
+        "ccy": "USD"
+      },
+      "quantity": 9588,
+      "executedAt": "2026-02-05T12:30:00.000Z"
+    },
+    {
+      "id": "569a358b-2af5-40cd-9cb4-e13a50a58e01",
+      "buyOrderId": "bf20ff09-f9c7-4774-baa2-a09ac3c32ee0",
+      "sellOrderId": "4b545ea6-bd6b-4d2f-95ff-a6078f6be7da",
+      "instrument": "META",
+      "price": {
+        "value": 433.52,
+        "ccy": "BRL"
+      },
+      "quantity": 9595,
+      "executedAt": "2026-02-06T13:30:00.000Z"
+    },
+    {
+      "id": "ed2d9140-b567-46b2-9be1-db8e175e7127",
+      "buyOrderId": "4b545ea6-bd6b-4d2f-95ff-a6078f6be7da",
+      "sellOrderId": "94e05023-8efa-4b29-a4af-809d06d3598b",
+      "instrument": "NVDA",
+      "price": {
+        "value": 303.77,
+        "ccy": "USD"
+      },
+      "quantity": 6052,
+      "executedAt": "2026-02-07T14:30:00.000Z"
+    },
+    {
+      "id": "bff1f7a0-3774-4247-b647-f1625616bf95",
+      "buyOrderId": "53108b22-a031-4ed3-8178-e1c82832703b",
+      "sellOrderId": "4b545ea6-bd6b-4d2f-95ff-a6078f6be7da",
+      "instrument": "AMD",
+      "price": {
+        "value": 130.49,
+        "ccy": "BRL"
+      },
+      "quantity": 5978,
+      "executedAt": "2026-02-08T15:30:00.000Z"
+    },
+    {
+      "id": "fa35d567-d819-450c-94c3-ee5cf947d67f",
+      "buyOrderId": "4b545ea6-bd6b-4d2f-95ff-a6078f6be7da",
+      "sellOrderId": "617a955b-c8ae-46b2-a2a7-fafd6303244a",
+      "instrument": "INTC",
+      "price": {
+        "value": 157.37,
+        "ccy": "USD"
+      },
+      "quantity": 2731,
+      "executedAt": "2026-02-09T16:30:00.000Z"
+    },
+    {
+      "id": "f8932d56-3836-483b-b097-1694be228482",
+      "buyOrderId": "7e00c09f-98d4-4e14-8c8c-827dfd66f558",
+      "sellOrderId": "4b545ea6-bd6b-4d2f-95ff-a6078f6be7da",
+      "instrument": "NFLX",
+      "price": {
+        "value": 52.6,
+        "ccy": "BRL"
+      },
+      "quantity": 2413,
+      "executedAt": "2026-02-10T17:30:00.000Z"
+    },
+    {
+      "id": "0532cf43-6e78-49fb-a556-7357d38d79b9",
+      "buyOrderId": "4b545ea6-bd6b-4d2f-95ff-a6078f6be7da",
+      "sellOrderId": "f63f768b-1320-4a32-b519-ef42010379b1",
+      "instrument": "AAPL",
+      "price": {
+        "value": 307.26,
+        "ccy": "USD"
+      },
+      "quantity": 1735,
+      "executedAt": "2026-02-11T18:30:00.000Z"
+    },
+    {
+      "id": "da44f093-9675-4949-8a5f-0cbf1629947a",
+      "buyOrderId": "6d3d2027-adbf-4959-90e4-e864912eb0bb",
+      "sellOrderId": "4b545ea6-bd6b-4d2f-95ff-a6078f6be7da",
+      "instrument": "MSFT",
+      "price": {
+        "value": 216.12,
+        "ccy": "BRL"
+      },
+      "quantity": 2892,
+      "executedAt": "2026-02-12T19:30:00.000Z"
+    },
+    {
+      "id": "26fc184b-f08e-4b37-a78e-c19d3bf93614",
+      "buyOrderId": "4b545ea6-bd6b-4d2f-95ff-a6078f6be7da",
+      "sellOrderId": "542927b8-2113-4bd7-ba51-93bb0fd46c1f",
+      "instrument": "GOOGL",
+      "price": {
+        "value": 390.57,
+        "ccy": "USD"
+      },
+      "quantity": 4848,
+      "executedAt": "2026-02-13T08:30:00.000Z"
+    },
+    {
+      "id": "ba3408f7-2652-4251-9be4-eecb552ff33c",
+      "buyOrderId": "e9f92ced-50bc-494e-a8b9-57aa29b97a29",
+      "sellOrderId": "4b545ea6-bd6b-4d2f-95ff-a6078f6be7da",
+      "instrument": "AMZN",
+      "price": {
+        "value": 148.84,
+        "ccy": "BRL"
+      },
+      "quantity": 9034,
+      "executedAt": "2026-02-14T09:30:00.000Z"
+    },
+    {
+      "id": "3bf02e68-7dce-4ffd-b717-4d1225614301",
+      "buyOrderId": "4b545ea6-bd6b-4d2f-95ff-a6078f6be7da",
+      "sellOrderId": "a6abf243-db34-4317-b288-04aa39d0a864",
+      "instrument": "TSLA",
+      "price": {
+        "value": 340.67,
+        "ccy": "USD"
+      },
+      "quantity": 1134,
+      "executedAt": "2026-02-15T10:30:00.000Z"
+    },
+    {
+      "id": "43287748-b74e-4751-ab30-2d87297175a0",
+      "buyOrderId": "c03ed83e-fc2f-4553-8193-f45e658fbdda",
+      "sellOrderId": "4b545ea6-bd6b-4d2f-95ff-a6078f6be7da",
+      "instrument": "META",
+      "price": {
+        "value": 137.39,
+        "ccy": "BRL"
+      },
+      "quantity": 2073,
+      "executedAt": "2026-02-16T11:30:00.000Z"
+    },
+    {
+      "id": "2e6e2f9e-5db7-4765-a295-4edb5ca4da92",
+      "buyOrderId": "4b545ea6-bd6b-4d2f-95ff-a6078f6be7da",
+      "sellOrderId": "bc0f3925-577c-4ea5-be1e-c93cd4278e1e",
+      "instrument": "NVDA",
+      "price": {
+        "value": 243.14,
+        "ccy": "USD"
+      },
+      "quantity": 8451,
+      "executedAt": "2026-02-17T12:30:00.000Z"
+    },
+    {
+      "id": "9fc653f4-bc67-46a8-85bd-9477aad02b93",
+      "buyOrderId": "89e2d6bc-a6e7-4a48-bbe7-7819878d334f",
+      "sellOrderId": "4b545ea6-bd6b-4d2f-95ff-a6078f6be7da",
+      "instrument": "AMD",
+      "price": {
+        "value": 208.24,
+        "ccy": "BRL"
+      },
+      "quantity": 4709,
+      "executedAt": "2026-02-18T13:30:00.000Z"
+    },
+    {
+      "id": "e7d3a00b-9c02-4e89-9736-e5b78a0c4041",
+      "buyOrderId": "4b545ea6-bd6b-4d2f-95ff-a6078f6be7da",
+      "sellOrderId": "df28ef22-8625-4626-857f-612b01bbf25a",
+      "instrument": "INTC",
+      "price": {
+        "value": 445.13,
+        "ccy": "USD"
+      },
+      "quantity": 2594,
+      "executedAt": "2026-02-19T14:30:00.000Z"
+    },
+    {
+      "id": "e3542f32-1b49-4e03-bfb7-c9c9d20c79d6",
+      "buyOrderId": "9ba6cc55-0159-4901-8f76-c645008c5f54",
+      "sellOrderId": "4b545ea6-bd6b-4d2f-95ff-a6078f6be7da",
+      "instrument": "NFLX",
+      "price": {
+        "value": 84.14,
+        "ccy": "BRL"
+      },
+      "quantity": 3824,
+      "executedAt": "2026-02-20T15:30:00.000Z"
+    },
+    {
+      "id": "5d1e0fc7-0c4f-42e4-8868-3bde5febdb36",
+      "buyOrderId": "4b545ea6-bd6b-4d2f-95ff-a6078f6be7da",
+      "sellOrderId": "32ea1389-491f-4528-aaa0-c1ddbdd2d45f",
+      "instrument": "AAPL",
+      "price": {
+        "value": 321.18,
+        "ccy": "USD"
+      },
+      "quantity": 8414,
+      "executedAt": "2026-02-21T16:30:00.000Z"
+    },
+    {
+      "id": "01b4955f-4061-4053-8fcb-3742683b4335",
+      "buyOrderId": "4848cf06-2d27-4f2d-ac29-c8c346b2e6cd",
+      "sellOrderId": "4b545ea6-bd6b-4d2f-95ff-a6078f6be7da",
+      "instrument": "MSFT",
+      "price": {
+        "value": 253.73,
+        "ccy": "BRL"
+      },
+      "quantity": 7577,
+      "executedAt": "2026-02-22T17:30:00.000Z"
+    },
+    {
+      "id": "36cd2ea4-039a-42bb-9c4e-ea370ec19163",
+      "buyOrderId": "4b545ea6-bd6b-4d2f-95ff-a6078f6be7da",
+      "sellOrderId": "05aa552e-3268-4c6c-90e3-a757d9d2966d",
+      "instrument": "GOOGL",
+      "price": {
+        "value": 191.28,
+        "ccy": "USD"
+      },
+      "quantity": 3441,
+      "executedAt": "2026-02-23T18:30:00.000Z"
+    },
+    {
+      "id": "bf81b36b-cee6-44ff-a79a-7658bb5221b2",
+      "buyOrderId": "24a86da0-6aa8-42ab-82f5-5438fc28743d",
+      "sellOrderId": "4b545ea6-bd6b-4d2f-95ff-a6078f6be7da",
+      "instrument": "AMZN",
+      "price": {
+        "value": 302.1,
+        "ccy": "BRL"
+      },
+      "quantity": 6636,
+      "executedAt": "2026-02-24T19:30:00.000Z"
+    },
+    {
+      "id": "66e29493-2ecf-4ea9-8cda-12f0b0c7058f",
+      "buyOrderId": "4b545ea6-bd6b-4d2f-95ff-a6078f6be7da",
+      "sellOrderId": "facdd836-de2a-4496-bb57-a43ec993d13c",
+      "instrument": "TSLA",
+      "price": {
+        "value": 189.5,
+        "ccy": "USD"
+      },
+      "quantity": 5145,
+      "executedAt": "2026-02-25T08:30:00.000Z"
+    },
+    {
+      "id": "d391d1f5-da82-4c5b-a9d2-47422526abc2",
+      "buyOrderId": "1a99d3bc-3b87-42b6-a68c-42fb71dfe4f1",
+      "sellOrderId": "4b545ea6-bd6b-4d2f-95ff-a6078f6be7da",
+      "instrument": "META",
+      "price": {
+        "value": 369.48,
+        "ccy": "BRL"
+      },
+      "quantity": 6805,
+      "executedAt": "2026-02-26T09:30:00.000Z"
+    },
+    {
+      "id": "83f662ab-d4b7-40e6-abb6-821c8ffe8fb9",
+      "buyOrderId": "4b545ea6-bd6b-4d2f-95ff-a6078f6be7da",
+      "sellOrderId": "8991ad61-dd79-4e03-a86b-ff7b58f6c039",
+      "instrument": "NVDA",
+      "price": {
+        "value": 355.87,
+        "ccy": "USD"
+      },
+      "quantity": 8742,
+      "executedAt": "2026-02-27T10:30:00.000Z"
+    },
+    {
+      "id": "476429e4-ed97-4484-8e40-b0718bb7fe37",
+      "buyOrderId": "befb0752-a386-4b6f-87c4-55d520c23352",
+      "sellOrderId": "4b545ea6-bd6b-4d2f-95ff-a6078f6be7da",
+      "instrument": "AMD",
+      "price": {
+        "value": 437.76,
+        "ccy": "BRL"
+      },
+      "quantity": 7355,
+      "executedAt": "2026-02-28T11:30:00.000Z"
+    },
+    {
+      "id": "a9f01d5f-46b2-41b8-86da-f36587891bae",
+      "buyOrderId": "4b545ea6-bd6b-4d2f-95ff-a6078f6be7da",
+      "sellOrderId": "2cbb7193-be99-4c55-ac12-e3229c3399b3",
+      "instrument": "INTC",
+      "price": {
+        "value": 366.19,
+        "ccy": "USD"
+      },
+      "quantity": 3719,
+      "executedAt": "2026-02-01T12:30:00.000Z"
+    },
+    {
+      "id": "1eb9f138-88ef-444b-a74d-f747f4a273c1",
+      "buyOrderId": "6bbbab9c-f8ff-4afe-b131-3bcd2c9cce13",
+      "sellOrderId": "4b545ea6-bd6b-4d2f-95ff-a6078f6be7da",
+      "instrument": "NFLX",
+      "price": {
+        "value": 60.44,
+        "ccy": "BRL"
+      },
+      "quantity": 5996,
+      "executedAt": "2026-02-02T13:30:00.000Z"
     }
   ]
 }
