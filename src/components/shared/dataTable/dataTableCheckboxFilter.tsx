@@ -3,21 +3,19 @@
 import { useState, Suspense, useMemo } from "react";
 import { Filter } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
+import { Popover, PopoverContent } from "@/components/ui/popover";
 import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
 import { useColumnFilter } from "@/hooks/useColumnFilter";
 import { getFilterValues } from "@/lib/api/orders";
-import { cn } from "@/lib/utils";
 import { use } from "react";
 import { ErrorBoundary } from "@/components/shared/errorBoundary";
+import { FilterTrigger, ClearFilterButton } from "./dataTableFilterParts";
 
-interface DataTableColumnFilterProps {
+interface DataTableCheckboxFilterProps {
   field: string;
   title: string;
+  searchable?: boolean;
 }
 
 function FilterOptions({
@@ -72,41 +70,36 @@ function FilterError({ onRetry }: { onRetry: () => void }) {
   );
 }
 
-export function DataTableColumnFilter({ field, title }: DataTableColumnFilterProps) {
+export function DataTableCheckboxFilter({ field, title, searchable = true }: DataTableCheckboxFilterProps) {
   const { selectedValues, toggleValue, clearFilter } = useColumnFilter(field);
   const [search, setSearch] = useState("");
   const [open, setOpen] = useState(false);
   const [retryCount, setRetryCount] = useState(0);
 
   const optionsPromise = useMemo(
-    () => (open ? getFilterValues(field, search || undefined) : null),
-    [open, field, search, retryCount],
+    () => (open ? getFilterValues(field, searchable && search ? search : undefined) : null),
+    [open, field, search, searchable, retryCount],
   );
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
-      <PopoverTrigger
-        className={cn(
-          "relative inline-flex h-6 w-6 items-center justify-center rounded-sm hover:bg-accent",
-          selectedValues.length > 0 && "text-primary",
-        )}
-      >
-        <Filter className="size-3.5" />
+      <FilterTrigger icon={Filter} isActive={selectedValues.length > 0}>
         {selectedValues.length > 0 && (
           <Badge variant="secondary" className="absolute -right-1 -top-1 h-4 min-w-4 px-0.5 text-[10px]">
             {selectedValues.length}
           </Badge>
         )}
-      </PopoverTrigger>
+      </FilterTrigger>
       <PopoverContent className="w-56 p-2" align="start">
         <div className="space-y-2">
-          <input
-            type="text"
-            placeholder={`Search ${title.toLowerCase()}...`}
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="h-8 w-full rounded-md border border-input bg-background px-2 text-sm outline-none focus:ring-1 focus:ring-ring"
-          />
+          {searchable && (
+            <Input
+              type="text"
+              placeholder={`Search ${title.toLowerCase()}...`}
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+            />
+          )}
           <div className="max-h-48 overflow-auto">
             {optionsPromise && (
               <ErrorBoundary
@@ -130,13 +123,7 @@ export function DataTableColumnFilter({ field, title }: DataTableColumnFilterPro
             )}
           </div>
           {selectedValues.length > 0 && (
-            <button
-              type="button"
-              className="h-7 w-full rounded-sm text-xs text-muted-foreground hover:bg-accent"
-              onClick={clearFilter}
-            >
-              Clear filter
-            </button>
+            <ClearFilterButton onClick={clearFilter} />
           )}
         </div>
       </PopoverContent>
