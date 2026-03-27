@@ -6,8 +6,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { OrderInfo } from "./orderInfo";
-import { OrderTimeline } from "./orderTimeline";
-import { ExecutionDetails } from "../orderTable/executionDetails";
+import { OrderDetailsTabs } from "../orderDetailsTabs";
 
 interface OrderDetailsDialogProps {
   order: Order | null;
@@ -22,40 +21,22 @@ export function OrderDetailsDialog({
 }: OrderDetailsDialogProps) {
   if (!order) return null;
 
+  const orderLabel = `${order.instrument} #${order.id.slice(0, 8)}`;
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-2xl max-h-[85vh] overflow-y-auto">
+      <DialogContent className="sm:max-w-4xl max-h-[85vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>
-            {order.instrument} #{order.id.slice(0, 8)}
-          </DialogTitle>
+          <DialogTitle>{orderLabel}</DialogTitle>
         </DialogHeader>
 
-        <div className="space-y-5">
-          <section>
-            <h3 className="mb-2 text-xs font-medium uppercase tracking-wide text-muted-foreground">
-              Order Info
-            </h3>
-            <OrderInfo order={order} />
-          </section>
+        <OrderInfo order={order} />
 
-          <section>
-            <h3 className="mb-2 text-xs font-medium uppercase tracking-wide text-muted-foreground">
-              Executions
-            </h3>
-            <ExecutionDetails
-              orderId={order.id}
-              orderLabel={`${order.instrument} #${order.id.slice(0, 8)}`}
-            />
-          </section>
-
-          <section>
-            <h3 className="mb-2 text-xs font-medium uppercase tracking-wide text-muted-foreground">
-              Status History
-            </h3>
-            <OrderTimeline orderId={order.id} />
-          </section>
-        </div>
+        <OrderDetailsTabs
+          orderId={order.id}
+          orderLabel={orderLabel}
+          defaultTab="history"
+        />
       </DialogContent>
     </Dialog>
   );

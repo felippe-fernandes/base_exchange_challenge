@@ -11,7 +11,7 @@ import { DataTableSkeleton } from "@/components/shared/dataTable/dataTableSkelet
 import { ORDER_TABLE_DEFAULTS } from "@/lib/constants";
 import { OrderDetailsDialog } from "../orderDetails/orderDetailsDialog";
 import { columns } from "./columns";
-import { ExecutionDetails } from "./executionDetails";
+import { OrderExpandedRow } from "./orderExpandedRow";
 
 useUserConfigStore.getState().initDefaults(ORDER_TABLE_DEFAULTS);
 
@@ -54,7 +54,7 @@ export function OrderTable({ ordersPromise, params }: OrderTableProps) {
         isLoadingMore={isLoadingMore}
         onRowClick={(row) => setSelectedOrder(row.original)}
         renderSubComponent={(row) => (
-          <ExecutionDetails
+          <OrderExpandedRow
             orderId={row.original.id}
             orderLabel={`${row.original.instrument} #${row.original.id.slice(0, 8)}`}
           />

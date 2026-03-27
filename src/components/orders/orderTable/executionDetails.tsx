@@ -57,7 +57,7 @@ function ExecutionDetailsContent({ orderId, orderLabel }: ExecutionDetailsProps)
     useOrderExecutions(orderId);
 
   return (
-    <div className="border-l-2 border-primary/30 bg-muted/30 p-3">
+    <div>
       <div className="mb-2 flex items-center gap-3">
         <h4 className="shrink-0 text-xs font-medium">
           Executions for {orderLabel ?? orderId.slice(0, 8)}
