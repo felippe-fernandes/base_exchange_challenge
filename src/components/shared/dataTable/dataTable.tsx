@@ -6,7 +6,6 @@ import { useVirtualizer } from "@tanstack/react-virtual";
 import { ChevronRight, GripVertical } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useColumnDragReorder } from "@/hooks/useColumnDragReorder";
-import { DataTableActiveFilters } from "./dataTableActiveFilters";
 import {
   Table,
   TableCell,
@@ -22,6 +21,7 @@ interface DataTableProps<TData> {
   isLoadingMore?: boolean;
   footer?: React.ReactNode;
   renderSubComponent?: (row: Row<TData>) => React.ReactNode;
+  onRowClick?: (row: Row<TData>) => void;
 }
 
 const ROW_HEIGHT = 40;
@@ -34,6 +34,7 @@ export function DataTable<TData>({
   isLoadingMore,
   footer,
   renderSubComponent,
+  onRowClick,
 }: DataTableProps<TData>) {
   const parentRef = useRef<HTMLDivElement>(null);
   const rows = table.getRowModel().rows;
@@ -66,7 +67,6 @@ export function DataTable<TData>({
 
   return (
     <div className="space-y-2">
-      <DataTableActiveFilters />
       <div
         ref={parentRef}
         onScroll={handleScroll}
@@ -131,7 +131,15 @@ export function DataTable<TData>({
                   data-index={virtualRow.index}
                   ref={virtualizer.measureElement}
                 >
-                  <TableRow>
+                  <TableRow
+                    className={onRowClick ? "cursor-pointer" : undefined}
+                    onClick={(e) => {
+                      if (!onRowClick) return;
+                      const target = e.target as HTMLElement;
+                      if (target.closest("button, a")) return;
+                      onRowClick(row);
+                    }}
+                  >
                     {row.getVisibleCells().filter((c) => c.column.getCanHide()).map((cell, i) => (
                       <TableCell key={cell.id} style={{ width: cell.column.getSize() }}>
                         <div className="flex items-center">
