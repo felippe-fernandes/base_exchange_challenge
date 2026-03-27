@@ -1,19 +1,34 @@
 "use client";
 
-import { use, useCallback, useRef, useState } from "react";
-import type { ExecutionsParams } from "@/lib/api/orders";
+import { use, useCallback, useRef, useState, startTransition } from "react";
+import type { ExecutionsParams, PaginatedExecutions } from "@/lib/api/orders";
 import { getExecutions } from "@/lib/api/orders";
 
 const DEBOUNCE_DELAY = 300;
 
+const promiseCache = new Map<string, Promise<PaginatedExecutions>>();
+
+function getCachedExecutions(orderId: string, params?: ExecutionsParams) {
+  const key = JSON.stringify({ orderId, ...params });
+  if (!promiseCache.has(key)) {
+    promiseCache.set(key, getExecutions(orderId, params));
+  }
+  return promiseCache.get(key)!;
+}
+
 export function useOrderExecutions(orderId: string) {
-  const [promise, setPromise] = useState(() => getExecutions(orderId));
+  const [promise, setPromise] = useState(() => getCachedExecutions(orderId));
   const result = use(promise);
   const timerRef = useRef<ReturnType<typeof setTimeout>>(undefined);
 
   const fetchPage = useCallback(
     (params?: ExecutionsParams) => {
-      setPromise(getExecutions(orderId, params));
+      const key = JSON.stringify({ orderId, ...params });
+      const newPromise = getExecutions(orderId, params);
+      promiseCache.set(key, newPromise);
+      startTransition(() => {
+        setPromise(newPromise);
+      });
     },
     [orderId],
   );
