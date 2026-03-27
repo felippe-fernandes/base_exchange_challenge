@@ -55,23 +55,45 @@ root.get("/orders/filters/:field", async (req, res) => {
   res.json(values);
 });
 
-root.use("/orders", async (req, res, next) => {
-  const filterFields = ["instrument", "side", "status"];
-  const hasMultiValue = filterFields.some((f) =>
-    req.query[f]?.includes(",")
-  );
+root.get("/orders/range/:field", async (req, res) => {
+  const { field } = req.params;
+  await db.read();
 
-  if (!hasMultiValue) {
-    next();
+  const allowedFields = ["price", "quantity", "remainingQuantity"];
+  if (!allowedFields.includes(field)) {
+    res.status(400).json({ error: `Invalid range field: ${field}` });
     return;
   }
 
-  await db.read();
+  const values = db.data.orders.map((order) => {
+    const val = order[field];
+    return val && typeof val === "object" && "value" in val ? val.value : val;
+  });
 
-  let results = [...db.data.orders];
+  res.json({
+    min: Math.min(...values),
+    max: Math.max(...values),
+  });
+});
+
+function getOrderValue(order, field) {
+  const val = order[field];
+  return val && typeof val === "object" && "value" in val ? val.value : val;
+}
+
+function hasCustomFilter(query) {
+  const filterFields = ["instrument", "side", "status"];
+  const hasMultiValue = filterFields.some((f) => query[f]?.includes(","));
+  const hasLike = Object.keys(query).some((k) => k.endsWith("_like"));
+  const hasRange = Object.keys(query).some((k) => k.endsWith("_gte") || k.endsWith("_lte"));
+  return hasMultiValue || hasLike || hasRange;
+}
+
+function applyFilters(results, query) {
+  const filterFields = ["instrument", "side", "status"];
 
   for (const field of filterFields) {
-    const value = req.query[field];
+    const value = query[field];
     if (value && value.includes(",")) {
       const values = value.split(",");
       results = results.filter((order) => values.includes(order[field]));
@@ -80,22 +102,72 @@ root.use("/orders", async (req, res, next) => {
     }
   }
 
-  const sort = req.query._sort;
-  if (sort) {
-    const desc = sort.startsWith("-");
-    const field = desc ? sort.slice(1) : sort;
-    const getValue = (obj) => {
-      const val = obj[field];
-      return val && typeof val === "object" && "value" in val ? val.value : val;
-    };
-    results.sort((a, b) => {
-      const aVal = getValue(a);
-      const bVal = getValue(b);
+  if (query.id_like) {
+    const search = query.id_like.toLowerCase();
+    results = results.filter((order) =>
+      order.id.toLowerCase().includes(search)
+    );
+  }
+
+  const rangeFields = ["price", "quantity", "remainingQuantity", "createdAt"];
+  for (const field of rangeFields) {
+    const gte = query[`${field}_gte`];
+    const lte = query[`${field}_lte`];
+
+    if (gte !== undefined) {
+      if (field === "createdAt") {
+        results = results.filter((order) => order.createdAt >= gte);
+      } else {
+        const min = Number(gte);
+        results = results.filter((order) => getOrderValue(order, field) >= min);
+      }
+    }
+
+    if (lte !== undefined) {
+      if (field === "createdAt") {
+        results = results.filter((order) => order.createdAt <= lte);
+      } else {
+        const max = Number(lte);
+        results = results.filter((order) => getOrderValue(order, field) <= max);
+      }
+    }
+  }
+
+  return results;
+}
+
+function applySort(results, sortParam) {
+  if (!sortParam) return results;
+
+  const sortFields = sortParam.split(",").map((s) => {
+    const desc = s.startsWith("-");
+    return { field: desc ? s.slice(1) : s, desc };
+  });
+
+  results.sort((a, b) => {
+    for (const { field, desc } of sortFields) {
+      const aVal = getOrderValue(a, field);
+      const bVal = getOrderValue(b, field);
       if (aVal < bVal) return desc ? 1 : -1;
       if (aVal > bVal) return desc ? -1 : 1;
-      return 0;
-    });
+    }
+    return 0;
+  });
+
+  return results;
+}
+
+root.use("/orders", async (req, res, next) => {
+  if (!hasCustomFilter(req.query)) {
+    next();
+    return;
   }
+
+  await db.read();
+
+  let results = [...db.data.orders];
+  results = applyFilters(results, req.query);
+  results = applySort(results, req.query._sort);
 
   const page = parseInt(req.query._page) || 1;
   const perPage = parseInt(req.query._per_page) || 10;
