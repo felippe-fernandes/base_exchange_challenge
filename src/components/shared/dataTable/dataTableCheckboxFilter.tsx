@@ -7,7 +7,6 @@ import { Popover, PopoverContent } from "@/components/ui/popover";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { useColumnFilter } from "@/hooks/useColumnFilter";
-import { getFilterValues } from "@/lib/api/orders";
 import { use } from "react";
 import { ErrorBoundary } from "@/components/shared/errorBoundary";
 import { FilterTrigger, ClearFilterButton } from "./dataTableFilterParts";
@@ -16,6 +15,7 @@ interface DataTableCheckboxFilterProps {
   field: string;
   title: string;
   searchable?: boolean;
+  fetchOptions: (field: string, query?: string) => Promise<string[]>;
 }
 
 function FilterOptions({
@@ -70,14 +70,14 @@ function FilterError({ onRetry }: { onRetry: () => void }) {
   );
 }
 
-export function DataTableCheckboxFilter({ field, title, searchable = true }: DataTableCheckboxFilterProps) {
+export function DataTableCheckboxFilter({ field, title, searchable = true, fetchOptions }: DataTableCheckboxFilterProps) {
   const { selectedValues, toggleValue, clearFilter } = useColumnFilter(field);
   const [search, setSearch] = useState("");
   const [open, setOpen] = useState(false);
   const [retryCount, setRetryCount] = useState(0);
 
   const optionsPromise = useMemo(
-    () => (open ? getFilterValues(field, searchable && search ? search : undefined) : null),
+    () => (open ? fetchOptions(field, searchable && search ? search : undefined) : null),
     [open, field, search, searchable, retryCount],
   );
 

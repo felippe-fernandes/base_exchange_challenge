@@ -100,12 +100,32 @@ export async function getOrderHistory(
   );
 }
 
-export async function getExecutions(orderId: string): Promise<Execution[]> {
-  const [asBuy, asSell] = await Promise.all([
-    request<Execution[]>(`/executions?buyOrderId=${orderId}`),
-    request<Execution[]>(`/executions?sellOrderId=${orderId}`),
-  ]);
-  return [...asBuy, ...asSell];
+export interface PaginatedExecutions {
+  data: Execution[];
+  page: number;
+  pages: number;
+  items: number;
+}
+
+export interface ExecutionsParams {
+  page?: number;
+  perPage?: number;
+  q?: string;
+}
+
+export async function getExecutions(
+  orderId: string,
+  params?: ExecutionsParams,
+): Promise<PaginatedExecutions> {
+  const searchParams = new URLSearchParams();
+  if (params?.page) searchParams.set("_page", String(params.page));
+  if (params?.perPage) searchParams.set("_per_page", String(params.perPage));
+  if (params?.q) searchParams.set("q", params.q);
+
+  const query = searchParams.toString();
+  return request<PaginatedExecutions>(
+    `/executions/by-order/${orderId}${query ? `?${query}` : ""}`,
+  );
 }
 
 export async function getFilterValues(

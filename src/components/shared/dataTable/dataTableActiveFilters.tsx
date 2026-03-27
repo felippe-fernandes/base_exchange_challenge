@@ -6,23 +6,13 @@ import { Button } from "@/components/ui/button";
 import { useSearchParamsNavigation } from "@/hooks/useSearchParamsNavigation";
 import { parseSortParam } from "@/hooks/useMultiSort";
 import { useUserConfigStore } from "@/stores/userConfigStore";
-import { DEFAULT_USER_CONFIG } from "@/lib/schemas/userConfig.schema";
 import { formatFilterValue } from "@/lib/formatters";
+import type { TableDefaults } from "@/lib/schemas/userConfig.schema";
 
-const FILTER_LABELS: Record<string, string> = {
-  id_like: "ID",
-  instrument: "Instrument",
-  side: "Side",
-  status: "Status",
-  price_gte: "Price min",
-  price_lte: "Price max",
-  quantity_gte: "Qty min",
-  quantity_lte: "Qty max",
-  remainingQuantity_gte: "Remaining min",
-  remainingQuantity_lte: "Remaining max",
-  createdAt_gte: "Date from",
-  createdAt_lte: "Date to",
-};
+interface DataTableActiveFiltersProps {
+  filterLabels: Record<string, string>;
+  tableDefaults: TableDefaults;
+}
 
 const IGNORED_PARAMS = new Set(["page", "perPage", "sort"]);
 
@@ -31,23 +21,23 @@ function arraysEqual(a: string[], b: string[]) {
   return a.every((v, i) => v === b[i]);
 }
 
-export function DataTableActiveFilters() {
+export function DataTableActiveFilters({ filterLabels, tableDefaults }: DataTableActiveFiltersProps) {
   const { searchParams, navigate } = useSearchParamsNavigation();
   const { columnOrder, resetColumnOrder, columnSizing, resetColumnSizing } = useUserConfigStore();
-  const isColumnOrderChanged = !arraysEqual(columnOrder, DEFAULT_USER_CONFIG.columnOrder);
+  const isColumnOrderChanged = !arraysEqual(columnOrder, tableDefaults.columnOrder);
   const isColumnSizingChanged = Object.keys(columnSizing).length > 0;
   const isTableCustomized = isColumnOrderChanged || isColumnSizingChanged;
 
   const filterEntries: { key: string; value: string; label: string }[] = [];
   searchParams.forEach((value, key) => {
     if (IGNORED_PARAMS.has(key)) return;
-    const label = FILTER_LABELS[key] || key;
+    const label = filterLabels[key] || key;
     filterEntries.push({ key, value, label });
   });
 
-  const sortParam = searchParams.get("sort") || DEFAULT_USER_CONFIG.defaultSort;
+  const sortParam = searchParams.get("sort") || tableDefaults.defaultSort;
   const sortEntries = parseSortParam(sortParam);
-  const isDefaultSort = sortParam === DEFAULT_USER_CONFIG.defaultSort;
+  const isDefaultSort = sortParam === tableDefaults.defaultSort;
   const sortBadges = isDefaultSort ? [] : sortEntries;
 
   if (filterEntries.length === 0 && sortBadges.length === 0 && !isTableCustomized) return null;
@@ -90,7 +80,7 @@ export function DataTableActiveFilters() {
           variant="secondary"
           className="gap-1 pl-2 pr-1 text-xs font-normal"
         >
-          {label}: {formatFilterValue(key, value)}
+          {label}: {formatFilterValue(value)}
           <button
             type="button"
             className="ml-0.5 rounded-full p-0.5 hover:bg-muted"

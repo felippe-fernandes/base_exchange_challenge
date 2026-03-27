@@ -157,6 +157,38 @@ function applySort(results, sortParam) {
   return results;
 }
 
+root.get("/executions/by-order/:orderId", async (req, res) => {
+  const { orderId } = req.params;
+  const { q, _page, _per_page } = req.query;
+  await db.read();
+
+  let results = db.data.executions.filter(
+    (e) => e.buyOrderId === orderId || e.sellOrderId === orderId,
+  );
+
+  if (q) {
+    const search = q.toLowerCase();
+    results = results.filter(
+      (e) =>
+        e.id.toLowerCase().includes(search) ||
+        e.instrument.toLowerCase().includes(search),
+    );
+  }
+
+  const total = results.length;
+  const page = parseInt(_page) || 1;
+  const perPage = parseInt(_per_page) || 10;
+  const pages = Math.ceil(total / perPage);
+  const start = (page - 1) * perPage;
+
+  res.json({
+    data: results.slice(start, start + perPage),
+    page,
+    pages,
+    items: total,
+  });
+});
+
 root.use("/orders", async (req, res, next) => {
   if (!hasCustomFilter(req.query)) {
     next();

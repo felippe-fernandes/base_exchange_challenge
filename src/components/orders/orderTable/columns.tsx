@@ -10,6 +10,7 @@ import {
   ORDER_SIDE_LABELS,
 } from "@/lib/constants";
 import { formatCurrency, formatNumber, formatDateTime } from "@/lib/formatters";
+import { getFilterValues } from "@/lib/api/orders";
 
 export const columns = buildColumns<Order>([
   { accessorKey: "id", title: "ID", sortable: false, filterable: { type: "text" } },
@@ -66,4 +67,4 @@ export const columns = buildColumns<Order>([
     filterable: { type: "dateRange" },
     cell: ({ row }) => formatDateTime(row.getValue("createdAt")),
   },
-]);
+], { fetchOptions: getFilterValues });
