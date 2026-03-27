@@ -6,12 +6,61 @@ import type {
 } from "@/types/order";
 import { request } from "./client";
 
+export interface PaginatedOrders {
+  data: Order[];
+  pages: number;
+  items: number;
+  first: number;
+  prev: number | null;
+  next: number | null;
+  last: number;
+}
+
+export interface OrdersParams {
+  page?: number;
+  perPage?: number;
+  sort?: string;
+  id?: string;
+  id_like?: string;
+  instrument?: string;
+  side?: string;
+  status?: string;
+  price_gte?: number;
+  price_lte?: number;
+  quantity_gte?: number;
+  quantity_lte?: number;
+  remainingQuantity_gte?: number;
+  remainingQuantity_lte?: number;
+  createdAt_gte?: string;
+  createdAt_lte?: string;
+}
+
+export interface RangeValues {
+  min: number;
+  max: number;
+}
+
+const PARAM_MAP: Record<string, string> = {
+  page: "_page",
+  perPage: "_per_page",
+  sort: "_sort",
+};
+
 export async function getOrders(
-  params?: Record<string, string>,
-): Promise<Order[]> {
-  const searchParams = new URLSearchParams(params);
+  params?: OrdersParams,
+): Promise<PaginatedOrders> {
+  const searchParams = new URLSearchParams();
+
+  if (params) {
+    for (const [key, value] of Object.entries(params)) {
+      if (value === undefined || value === null) continue;
+      const paramName = PARAM_MAP[key] || key;
+      searchParams.set(paramName, String(value));
+    }
+  }
+
   const query = searchParams.toString();
-  return request<Order[]>(`/orders${query ? `?${query}` : ""}`);
+  return request<PaginatedOrders>(`/orders${query ? `?${query}` : ""}`);
 }
 
 export async function getOrder(id: string): Promise<Order> {
@@ -47,7 +96,7 @@ export async function getOrderHistory(
   orderId: string,
 ): Promise<StatusHistoryEntry[]> {
   return request<StatusHistoryEntry[]>(
-    `/statusHistory?orderId=${orderId}&_sort=timestamp&_order=desc`,
+    `/statusHistory?orderId=${orderId}&_sort=-timestamp`,
   );
 }
 
@@ -57,4 +106,16 @@ export async function getExecutions(orderId: string): Promise<Execution[]> {
     request<Execution[]>(`/executions?sellOrderId=${orderId}`),
   ]);
   return [...asBuy, ...asSell];
+}
+
+export async function getFilterValues(
+  field: string,
+  query?: string,
+): Promise<string[]> {
+  const params = query ? `?q=${encodeURIComponent(query)}` : "";
+  return request<string[]>(`/orders/filters/${field}${params}`);
+}
+
+export async function getRangeValues(field: string): Promise<RangeValues> {
+  return request<RangeValues>(`/orders/range/${field}`);
 }

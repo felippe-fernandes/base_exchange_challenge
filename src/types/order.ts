@@ -6,8 +6,10 @@ import {
   CreateOrderSchema,
   ExecutionSchema,
   StatusHistoryEntrySchema,
+  MoneySchema,
 } from "@/lib/schemas/order.schema";
 
+export type Money = z.infer<typeof MoneySchema>;
 export type Order = z.infer<typeof OrderSchema>;
 export type OrderSide = z.infer<typeof OrderSideSchema>;
 export type OrderStatus = z.infer<typeof OrderStatusSchema>;

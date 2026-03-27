@@ -1,39 +1,17 @@
+const { randomUUID } = require("crypto");
 const fs = require("fs");
 const path = require("path");
+const { INSTRUMENTS } = require("./instruments");
 
-const INSTRUMENTS = [
-  // Acoes brasileiras
-  { symbol: "PETR4", minPrice: 25, maxPrice: 40 },
-  { symbol: "VALE3", minPrice: 60, maxPrice: 85 },
-  { symbol: "ITUB4", minPrice: 28, maxPrice: 38 },
-  { symbol: "BBDC4", minPrice: 12, maxPrice: 18 },
-  { symbol: "ABEV3", minPrice: 10, maxPrice: 16 },
-  { symbol: "WEGE3", minPrice: 35, maxPrice: 55 },
-  { symbol: "RENT3", minPrice: 40, maxPrice: 65 },
-  { symbol: "BBAS3", minPrice: 24, maxPrice: 35 },
-  { symbol: "SUZB3", minPrice: 45, maxPrice: 65 },
-  { symbol: "HAPV3", minPrice: 3, maxPrice: 6 },
-  { symbol: "MGLU3", minPrice: 1, maxPrice: 4 },
-  { symbol: "B3SA3", minPrice: 10, maxPrice: 15 },
-  { symbol: "ELET3", minPrice: 35, maxPrice: 50 },
-  { symbol: "CSAN3", minPrice: 12, maxPrice: 20 },
-  { symbol: "RADL3", minPrice: 22, maxPrice: 30 },
-  // Acoes americanas
-  { symbol: "AAPL", minPrice: 160, maxPrice: 200 },
-  { symbol: "MSFT", minPrice: 350, maxPrice: 430 },
-  { symbol: "GOOGL", minPrice: 130, maxPrice: 175 },
-  { symbol: "AMZN", minPrice: 150, maxPrice: 200 },
-  { symbol: "TSLA", minPrice: 180, maxPrice: 280 },
-  { symbol: "NVDA", minPrice: 600, maxPrice: 950 },
-  { symbol: "META", minPrice: 400, maxPrice: 550 },
-  // Cripto
-  { symbol: "BTCUSD", minPrice: 55000, maxPrice: 72000 },
-  { symbol: "ETHUSD", minPrice: 2800, maxPrice: 4000 },
-  { symbol: "SOLUSD", minPrice: 80, maxPrice: 180 },
-];
+const ORDER_COUNT = 1200;
 
-const STATUSES = ["open", "partial", "executed", "cancelled"];
 const SIDES = ["buy", "sell"];
+
+function getCcy(symbol) {
+  if (symbol.endsWith("USD")) return "USD";
+  if (/\d+$/.test(symbol)) return "BRL";
+  return "USD";
+}
 
 function randomFloat(min, max, decimals = 2) {
   return parseFloat((Math.random() * (max - min) + min).toFixed(decimals));
@@ -49,7 +27,7 @@ function randomElement(arr) {
 
 function randomDate(daysBack = 90) {
   const now = Date.now();
-  const past = now - daysBack * 24 * 60 * 60 * 1000;
+  const past = now - daysBack * 24 * 60 *0 * 1000;
   return new Date(past + Math.random() * (now - past));
 }
 
@@ -58,20 +36,23 @@ function generateOrders(count) {
   const statusHistory = [];
   const executions = [];
 
-  let historyId = 1;
-  let executionId = 1;
+  const orderIds = [];
 
-  for (let i = 1; i <= count; i++) {
+  for (let i = 0; i < count; i++) {
+    const orderId = randomUUID();
+    orderIds.push(orderId);
+
     const instrument = randomElement(INSTRUMENTS);
     const side = randomElement(SIDES);
-    const price = randomFloat(instrument.minPrice, instrument.maxPrice);
+    const ccy = getCcy(instrument.symbol);
+    const priceValue = randomFloat(instrument.minPrice, instrument.maxPrice);
+    const price = { value: priceValue, ccy };
     const quantity = randomInt(1, 500) * 100;
     const createdAt = randomDate();
     const updatedAt = new Date(
       createdAt.getTime() + randomInt(0, 3600000)
     );
 
-    // Weighted status distribution: more open/executed than cancelled
     const statusRoll = Math.random();
     let status;
     if (statusRoll < 0.3) status = "open";
@@ -90,8 +71,8 @@ function generateOrders(count) {
       remainingQuantity = quantity;
     }
 
-    const order = {
-      id: String(i),
+    orders.push({
+      id: orderId,
       instrument: instrument.symbol,
       side,
       price,
@@ -100,28 +81,24 @@ function generateOrders(count) {
       status,
       createdAt: createdAt.toISOString(),
       updatedAt: updatedAt.toISOString(),
-    };
+    });
 
-    orders.push(order);
-
-    // Status history: every order starts as "open"
     statusHistory.push({
-      id: String(historyId++),
-      orderId: String(i),
+      id: randomUUID(),
+      orderId,
       fromStatus: null,
       toStatus: "open",
       timestamp: createdAt.toISOString(),
       reason: "Order created",
     });
 
-    // Additional history based on final status
     if (status === "partial") {
       const partialAt = new Date(
         createdAt.getTime() + randomInt(1000, 1800000)
       );
       statusHistory.push({
-        id: String(historyId++),
-        orderId: String(i),
+        id: randomUUID(),
+        orderId,
         fromStatus: "open",
         toStatus: "partial",
         timestamp: partialAt.toISOString(),
@@ -134,22 +111,21 @@ function generateOrders(count) {
         createdAt.getTime() + randomInt(1000, 3600000)
       );
 
-      // Some executed orders go through partial first
       if (Math.random() < 0.3) {
         const partialAt = new Date(
           createdAt.getTime() + randomInt(1000, 1800000)
         );
         statusHistory.push({
-          id: String(historyId++),
-          orderId: String(i),
+          id: randomUUID(),
+          orderId,
           fromStatus: "open",
           toStatus: "partial",
           timestamp: partialAt.toISOString(),
           reason: "Partially matched",
         });
         statusHistory.push({
-          id: String(historyId++),
-          orderId: String(i),
+          id: randomUUID(),
+          orderId,
           fromStatus: "partial",
           toStatus: "executed",
           timestamp: executedAt.toISOString(),
@@ -157,8 +133,8 @@ function generateOrders(count) {
         });
       } else {
         statusHistory.push({
-          id: String(historyId++),
-          orderId: String(i),
+          id: randomUUID(),
+          orderId,
           fromStatus: "open",
           toStatus: "executed",
           timestamp: executedAt.toISOString(),
@@ -166,14 +142,13 @@ function generateOrders(count) {
         });
       }
 
-      // Create execution record
-      const counterpartId = randomInt(1, count);
+      const counterpartId = randomElement(orderIds);
       executions.push({
-        id: String(executionId++),
-        buyOrderId: side === "buy" ? String(i) : String(counterpartId),
-        sellOrderId: side === "sell" ? String(i) : String(counterpartId),
+        id: randomUUID(),
+        buyOrderId: side === "buy" ? orderId : counterpartId,
+        sellOrderId: side === "sell" ? orderId : counterpartId,
         instrument: instrument.symbol,
-        price,
+        price: { value: priceValue, ccy },
         quantity: quantity - remainingQuantity,
         executedAt: executedAt.toISOString(),
       });
@@ -184,8 +159,8 @@ function generateOrders(count) {
         createdAt.getTime() + randomInt(1000, 7200000)
       );
       statusHistory.push({
-        id: String(historyId++),
-        orderId: String(i),
+        id: randomUUID(),
+        orderId,
         fromStatus: "open",
         toStatus: "cancelled",
         timestamp: cancelledAt.toISOString(),
@@ -201,8 +176,6 @@ function generateOrders(count) {
 
   return { orders, statusHistory, executions };
 }
-
-const ORDER_COUNT = 1200;
 
 console.log(`Generating ${ORDER_COUNT} orders...`);
 const db = generateOrders(ORDER_COUNT);
