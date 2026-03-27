@@ -1,4 +1,16 @@
 import type { OrderSide, OrderStatus } from "@/types/order";
+import type { TableDefaults } from "@/lib/schemas/userConfig.schema";
+
+export const ORDER_COLUMNS: string[] = [
+  "id",
+  "instrument",
+  "side",
+  "price",
+  "quantity",
+  "remainingQuantity",
+  "status",
+  "createdAt",
+];
 
 export const ORDER_STATUS_LABELS: Record<OrderStatus, string> = {
   open: "Open",
@@ -22,4 +34,9 @@ export const ORDER_SIDE_LABELS: Record<OrderSide, string> = {
 export const ORDER_SIDE_COLORS: Record<OrderSide, string> = {
   buy: "text-green-600",
   sell: "text-red-600",
+};
+
+export const ORDER_TABLE_DEFAULTS: TableDefaults = {
+  defaultSort: "-createdAt",
+  columnOrder: ORDER_COLUMNS,
 };

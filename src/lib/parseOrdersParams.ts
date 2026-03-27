@@ -1,7 +1,7 @@
 import type { OrdersParams } from "@/lib/api/orders";
-import { DEFAULT_USER_CONFIG } from "@/lib/schemas/userConfig.schema";
+import { ORDER_TABLE_DEFAULTS } from "@/lib/constants";
 
-const DEFAULTS = { perPage: DEFAULT_USER_CONFIG.perPage, sort: DEFAULT_USER_CONFIG.defaultSort } as const;
+const DEFAULTS = { perPage: 50, sort: ORDER_TABLE_DEFAULTS.defaultSort } as const;
 
 function optionalNumber(val?: string): number | undefined {
   return val ? Number(val) : undefined;

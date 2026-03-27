@@ -1,6 +1,6 @@
 import { useCallback, useMemo } from "react";
 import { useSearchParamsNavigation } from "./useSearchParamsNavigation";
-import { DEFAULT_USER_CONFIG } from "@/lib/schemas/userConfig.schema";
+import { useUserConfigStore } from "@/stores/userConfigStore";
 
 interface SortEntry {
   field: string;
@@ -28,7 +28,8 @@ function serializeSortEntries(entries: SortEntry[]): string {
 
 export function useMultiSort() {
   const { searchParams, navigate } = useSearchParamsNavigation();
-  const currentSort = searchParams.get("sort") || DEFAULT_USER_CONFIG.defaultSort;
+  const { tableDefaults } = useUserConfigStore();
+  const currentSort = searchParams.get("sort") || tableDefaults.defaultSort;
 
   const sortEntries = useMemo(() => parseSortParam(currentSort), [currentSort]);
 

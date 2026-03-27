@@ -1,20 +1,9 @@
 import { z } from "zod/v4";
 
-const ORDER_COLUMNS: string[] = [
-  "id",
-  "instrument",
-  "side",
-  "price",
-  "quantity",
-  "remainingQuantity",
-  "status",
-  "createdAt",
-];
-
 export const DEFAULT_USER_CONFIG = {
-  defaultSort: "-createdAt",
+  defaultSort: "",
   perPage: 50,
-  columnOrder: ORDER_COLUMNS,
+  columnOrder: [] as string[],
   columnSizing: {} as Record<string, number>,
 };
 
@@ -26,3 +15,8 @@ export const UserConfigSchema = z.object({
 });
 
 export type UserConfig = z.infer<typeof UserConfigSchema>;
+
+export interface TableDefaults {
+  defaultSort: string;
+  columnOrder: string[];
+}
