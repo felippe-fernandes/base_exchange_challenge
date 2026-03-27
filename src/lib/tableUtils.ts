@@ -17,6 +17,10 @@ interface ColumnConfig<TData> {
   cell?: ColumnDef<TData>["cell"];
 }
 
+interface BuildColumnsOptions {
+  fetchOptions?: (field: string, query?: string) => Promise<string[]>;
+}
+
 function resolveFilterType(filterable: FilterType | boolean | undefined): FilterType | null {
   if (!filterable) return null;
   if (filterable === true) return { type: "checkbox", searchable: true };
@@ -25,6 +29,7 @@ function resolveFilterType(filterable: FilterType | boolean | undefined): Filter
 
 export function buildColumns<TData>(
   configs: ColumnConfig<TData>[],
+  options?: BuildColumnsOptions,
 ): ColumnDef<TData>[] {
   return configs.map(({ accessorKey, title, sortable = true, filterable, cell }) => {
     const filterConfig = resolveFilterType(filterable);
@@ -44,6 +49,7 @@ export function buildColumns<TData>(
                 field: accessorKey as string,
                 title,
                 filterType: filterConfig,
+                ...(options?.fetchOptions ? { fetchOptions: options.fetchOptions } : {}),
               })
             : null,
         ),

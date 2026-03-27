@@ -33,8 +33,8 @@ export function toIso(localDatetime: string): string {
   return new Date(localDatetime).toISOString();
 }
 
-export function formatFilterValue(key: string, value: string): string {
-  if (key.startsWith("createdAt")) {
+export function formatFilterValue(value: string): string {
+  if (/^\d{4}-\d{2}-\d{2}T/.test(value)) {
     return new Date(value).toLocaleString("en-US", {
       month: "short",
       day: "numeric",
