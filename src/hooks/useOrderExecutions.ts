@@ -1,27 +1,19 @@
 "use client";
 
 import { use, useCallback, useRef, useState } from "react";
-import type { ExecutionsParams, PaginatedExecutions } from "@/lib/api/orders";
+import type { ExecutionsParams } from "@/lib/api/orders";
 import { getExecutions } from "@/lib/api/orders";
 
 const DEBOUNCE_DELAY = 300;
 
-export function useOrderExecutions(
-  orderId: string,
-  initialPromise: Promise<PaginatedExecutions>,
-) {
-  const initialData = use(initialPromise);
-  const [result, setResult] = useState<PaginatedExecutions>(initialData);
-  const [isLoading, setIsLoading] = useState(false);
+export function useOrderExecutions(orderId: string) {
+  const [promise, setPromise] = useState(() => getExecutions(orderId));
+  const result = use(promise);
   const timerRef = useRef<ReturnType<typeof setTimeout>>(undefined);
 
   const fetchPage = useCallback(
     (params?: ExecutionsParams) => {
-      setIsLoading(true);
-      getExecutions(orderId, params).then((data) => {
-        setResult(data);
-        setIsLoading(false);
-      });
+      setPromise(getExecutions(orderId, params));
     },
     [orderId],
   );
@@ -48,7 +40,6 @@ export function useOrderExecutions(
     totalItems: result.items,
     currentPage: result.page,
     totalPages: result.pages,
-    isLoading,
     search,
     goToPage,
   };
