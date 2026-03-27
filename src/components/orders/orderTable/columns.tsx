@@ -12,12 +12,12 @@ import {
 import { formatCurrency, formatNumber, formatDateTime } from "@/lib/formatters";
 
 export const columns = buildColumns<Order>([
-  { accessorKey: "id", title: "ID", sortable: false },
-  { accessorKey: "instrument", title: "Instrument", filterable: true },
+  { accessorKey: "id", title: "ID", sortable: false, filterable: { type: "text" } },
+  { accessorKey: "instrument", title: "Instrument", filterable: { type: "checkbox", searchable: true } },
   {
     accessorKey: "side",
     title: "Side",
-    filterable: true,
+    filterable: { type: "checkbox", searchable: false },
     cell: ({ row }) => (
       <StatusBadge
         status={row.getValue("side")}
@@ -30,6 +30,7 @@ export const columns = buildColumns<Order>([
   {
     accessorKey: "price",
     title: "Price",
+    filterable: { type: "numericRange" },
     cell: ({ row }) => {
       const price = row.getValue<Money>("price");
       return formatCurrency(price.value, price.ccy);
@@ -38,17 +39,19 @@ export const columns = buildColumns<Order>([
   {
     accessorKey: "quantity",
     title: "Quantity",
+    filterable: { type: "numericRange" },
     cell: ({ row }) => formatNumber(row.getValue("quantity")),
   },
   {
     accessorKey: "remainingQuantity",
     title: "Remaining",
+    filterable: { type: "numericRange" },
     cell: ({ row }) => formatNumber(row.getValue("remainingQuantity")),
   },
   {
     accessorKey: "status",
     title: "Status",
-    filterable: true,
+    filterable: { type: "checkbox" },
     cell: ({ row }) => (
       <StatusBadge
         status={row.getValue("status")}
@@ -60,6 +63,7 @@ export const columns = buildColumns<Order>([
   {
     accessorKey: "createdAt",
     title: "Date/Time",
+    filterable: { type: "dateRange" },
     cell: ({ row }) => formatDateTime(row.getValue("createdAt")),
   },
 ]);
