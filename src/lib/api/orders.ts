@@ -68,16 +68,9 @@ export async function getOrder(id: string): Promise<Order> {
 }
 
 export async function createOrder(input: CreateOrderInput): Promise<Order> {
-  const now = new Date().toISOString();
   return request<Order>("/orders", {
     method: "POST",
-    body: JSON.stringify({
-      ...input,
-      remainingQuantity: input.quantity,
-      status: "open",
-      createdAt: now,
-      updatedAt: now,
-    }),
+    body: JSON.stringify(input),
   });
 }
 

@@ -10,7 +10,7 @@ interface ErrorProps {
 
 export default function OrdersError({ error, reset }: ErrorProps) {
   return (
-    <PageContainer title="Orders">
+    <PageContainer>
       <div className="flex flex-col items-center justify-center gap-4 py-10">
         <p className="text-destructive">{error.message}</p>
         <Button variant="outline" onClick={reset}>

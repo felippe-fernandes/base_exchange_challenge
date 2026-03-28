@@ -17,10 +17,12 @@ export async function request<T>(
 ): Promise<T> {
   const isServer = typeof window === "undefined";
 
+  const { headers: customHeaders, ...rest } = options ?? {};
+
   const response = await fetch(`${BASE_URL}${endpoint}`, {
-    headers: { "Content-Type": "application/json", ...options?.headers },
+    ...rest,
+    headers: { "Content-Type": "application/json", ...customHeaders },
     ...(isServer ? { cache: "no-store" as const } : {}),
-    ...options,
   });
 
   if (!response.ok) {

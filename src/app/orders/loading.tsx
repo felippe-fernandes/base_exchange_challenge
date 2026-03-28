@@ -3,7 +3,7 @@ import { DataTableSkeleton } from "@/components/shared/dataTable/dataTableSkelet
 
 export default function OrdersLoading() {
   return (
-    <PageContainer title="Orders">
+    <PageContainer>
       <DataTableSkeleton columns={8} />
     </PageContainer>
   );
