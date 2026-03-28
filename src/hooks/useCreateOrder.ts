@@ -82,7 +82,7 @@ export function useCreateOrder({ onSuccess }: UseCreateOrderOptions) {
           };
         },
       );
-      orderCreatedToast(serverOrder.id);
+      orderCreatedToast(serverOrder);
       form.reset();
       onSuccess?.();
     },
