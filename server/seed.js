@@ -25,9 +25,9 @@ function randomElement(arr) {
   return arr[Math.floor(Math.random() * arr.length)];
 }
 
-function randomDate(daysBack = 90) {
+function randomDate(daysBack = 7) {
   const now = Date.now();
-  const past = now - daysBack * 24 * 60 *0 * 1000;
+  const past = now - daysBack * 24 * 60 * 60 * 1000;
   return new Date(past + Math.random() * (now - past));
 }
 
