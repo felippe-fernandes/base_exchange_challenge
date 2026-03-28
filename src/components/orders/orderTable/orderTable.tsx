@@ -10,6 +10,7 @@ import { useUserConfigHydrated, useUserConfigStore } from "@/stores/userConfigSt
 import { DataTableSkeleton } from "@/components/shared/dataTable/dataTableSkeleton";
 import { ORDER_TABLE_DEFAULTS } from "@/lib/constants";
 import { OrderDetailsDialog } from "../orderDetails/orderDetailsDialog";
+import { CreateOrderDialog } from "../createOrder/createOrderDialog";
 import { columns } from "./columns";
 import { OrderExpandedRow } from "./orderExpandedRow";
 
@@ -38,7 +39,7 @@ interface OrderTableProps {
 export function OrderTable({ ordersPromise, params }: OrderTableProps) {
   const initialData = use(ordersPromise);
   const hydrated = useUserConfigHydrated();
-  const { table, orders, hasNextPage, isLoadingMore, loadMore, totalItems } =
+  const { table, orders, hasNextPage, isLoadingMore, loadMore, totalItems, addOrder } =
     useOrdersTable({ initialData, params, columns });
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
 
@@ -46,6 +47,10 @@ export function OrderTable({ ordersPromise, params }: OrderTableProps) {
 
   return (
     <>
+      <div className="mb-6 flex items-center justify-between">
+        <h2 className="text-2xl font-bold tracking-tight">Orders</h2>
+        <CreateOrderDialog onOrderCreated={addOrder} />
+      </div>
       <DataTableActiveFilters filterLabels={ORDER_FILTER_LABELS} tableDefaults={ORDER_TABLE_DEFAULTS} />
       <DataTable
         table={table}

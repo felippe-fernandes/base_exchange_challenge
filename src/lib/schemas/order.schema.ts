@@ -27,13 +27,13 @@ export const OrderSchema = z.object({
 });
 
 export const CreateOrderSchema = z.object({
-  instrument: z.string().min(1, "Instrument is required"),
+  instrument: z.string().min(1, { error: "Instrument is required" }),
   side: OrderSideSchema,
   price: MoneySchema,
   quantity: z
     .number({ error: "Quantity is required" })
-    .int("Quantity must be a whole number")
-    .positive("Quantity must be positive"),
+    .int({ error: "Quantity must be a whole number" })
+    .positive({ error: "Quantity must be positive" }),
 });
 
 export const ExecutionSchema = z.object({
