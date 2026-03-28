@@ -28,13 +28,31 @@ export function toLocalDatetime(iso?: string): string {
   return local.toISOString().slice(0, 16);
 }
 
-export function toIso(localDatetime: string): string {
+export function toCompactIso(localDatetime: string): string {
   if (!localDatetime) return "";
-  return new Date(localDatetime).toISOString();
+  const iso = new Date(localDatetime).toISOString();
+  return iso.slice(0, 16) + "Z";
+}
+
+export function startOfTodayIso(): string {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  return today.toISOString().slice(0, 10);
+}
+
+export function normalizeToIso(value?: string): string | undefined {
+  if (!value) return undefined;
+  const d = new Date(value);
+  if (isNaN(d.getTime())) return undefined;
+  return d.toISOString();
+}
+
+export function cleanQueryString(params: URLSearchParams): string {
+  return params.toString().replaceAll("%3A", ":");
 }
 
 export function formatFilterValue(value: string): string {
-  if (/^\d{4}-\d{2}-\d{2}T/.test(value)) {
+  if (/^\d{4}-\d{2}-\d{2}(T|$)/.test(value)) {
     return new Date(value).toLocaleString("en-US", {
       month: "short",
       day: "numeric",

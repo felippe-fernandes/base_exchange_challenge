@@ -5,7 +5,7 @@ import { CalendarDays } from "lucide-react";
 import { Popover, PopoverContent } from "@/components/ui/popover";
 import { Input } from "@/components/ui/input";
 import { useDateRangeFilter } from "@/hooks/useDateRangeFilter";
-import { toLocalDatetime, toIso } from "@/lib/formatters";
+import { toLocalDatetime, toCompactIso } from "@/lib/formatters";
 import { FilterTrigger, ApplyFilterButton, ClearFilterButton } from "./dataTableFilterParts";
 
 interface DataTableDateRangeFilterProps {
@@ -21,8 +21,8 @@ export function DataTableDateRangeFilter({ field, title }: DataTableDateRangeFil
 
   const handleApply = () => {
     setRange(
-      localFrom ? toIso(localFrom) : undefined,
-      localTo ? toIso(localTo) : undefined,
+      localFrom ? toCompactIso(localFrom) : undefined,
+      localTo ? toCompactIso(localTo) : undefined,
     );
   };
 

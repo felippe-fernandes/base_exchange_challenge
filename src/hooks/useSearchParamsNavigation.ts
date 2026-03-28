@@ -2,6 +2,7 @@
 
 import { useCallback } from "react";
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
+import { cleanQueryString } from "@/lib/formatters";
 
 interface NavigateOptions {
   resetPage?: boolean;
@@ -19,7 +20,7 @@ export function useSearchParamsNavigation() {
       if (options?.resetPage !== false) {
         params.delete("page");
       }
-      router.push(`${pathname}?${params.toString()}`);
+      router.push(`${pathname}?${cleanQueryString(params)}`);
     },
     [router, pathname, searchParams],
   );
