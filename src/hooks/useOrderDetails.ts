@@ -1,21 +1,14 @@
 "use client";
 
-import { use, useState } from "react";
-import type { StatusHistoryEntry } from "@/types/order";
+import { useSuspenseQuery } from "@tanstack/react-query";
 import { getOrderHistory } from "@/lib/api/orders";
-
-const promiseCache = new Map<string, Promise<StatusHistoryEntry[]>>();
-
-function getCachedHistory(orderId: string) {
-  if (!promiseCache.has(orderId)) {
-    promiseCache.set(orderId, getOrderHistory(orderId));
-  }
-  return promiseCache.get(orderId)!;
-}
+import { queryKeys } from "@/lib/queryKeys";
 
 export function useOrderDetails(orderId: string) {
-  const [promise] = useState(() => getCachedHistory(orderId));
-  const history = use(promise);
+  const { data: history } = useSuspenseQuery({
+    queryKey: queryKeys.history(orderId),
+    queryFn: () => getOrderHistory(orderId),
+  });
 
   return { history };
 }
