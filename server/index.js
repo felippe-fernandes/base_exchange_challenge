@@ -167,6 +167,83 @@ function applySort(results, sortParam) {
   return results;
 }
 
+function addStatusHistory(db, orderId, fromStatus, toStatus, timestamp, reason) {
+  db.data.statusHistory.push({
+    id: crypto.randomUUID(),
+    orderId,
+    fromStatus,
+    toStatus,
+    timestamp,
+    reason,
+  });
+}
+
+function resolveStatus(order) {
+  if (order.remainingQuantity === 0) return "executed";
+  if (order.remainingQuantity < order.quantity) return "partial";
+  return order.status;
+}
+
+function matchOrder(db, incomingOrder, now) {
+  if (incomingOrder.status !== "open") return;
+
+  const counterSide = incomingOrder.side === "buy" ? "sell" : "buy";
+  const isBuy = incomingOrder.side === "buy";
+
+  const candidates = db.data.orders.filter((o) =>
+    o.id !== incomingOrder.id &&
+    o.instrument === incomingOrder.instrument &&
+    o.price.ccy === incomingOrder.price.ccy &&
+    o.side === counterSide &&
+    (o.status === "open" || o.status === "partial") &&
+    o.remainingQuantity > 0 &&
+    (isBuy ? o.price.value <= incomingOrder.price.value : o.price.value >= incomingOrder.price.value)
+  );
+
+  candidates.sort((a, b) => {
+    const priceDir = isBuy ? a.price.value - b.price.value : b.price.value - a.price.value;
+    if (priceDir !== 0) return priceDir;
+    return a.createdAt < b.createdAt ? -1 : 1;
+  });
+
+  for (const candidate of candidates) {
+    if (incomingOrder.remainingQuantity <= 0) break;
+
+    const fillQty = Math.min(incomingOrder.remainingQuantity, candidate.remainingQuantity);
+    const executionPrice = candidate.price;
+
+    db.data.executions.push({
+      id: crypto.randomUUID(),
+      buyOrderId: isBuy ? incomingOrder.id : candidate.id,
+      sellOrderId: isBuy ? candidate.id : incomingOrder.id,
+      instrument: incomingOrder.instrument,
+      price: { value: executionPrice.value, ccy: executionPrice.ccy },
+      quantity: fillQty,
+      executedAt: now,
+    });
+
+    const prevCandidateStatus = candidate.status;
+    candidate.remainingQuantity -= fillQty;
+    candidate.updatedAt = now;
+    const newCandidateStatus = resolveStatus(candidate);
+    if (newCandidateStatus !== prevCandidateStatus) {
+      candidate.status = newCandidateStatus;
+      addStatusHistory(db, candidate.id, prevCandidateStatus, newCandidateStatus, now,
+        `Matched with order ${incomingOrder.id.slice(0, 8)}, filled ${fillQty} at ${executionPrice.value} ${executionPrice.ccy}`);
+    }
+
+    const prevIncomingStatus = incomingOrder.status;
+    incomingOrder.remainingQuantity -= fillQty;
+    incomingOrder.updatedAt = now;
+    const newIncomingStatus = resolveStatus(incomingOrder);
+    if (newIncomingStatus !== prevIncomingStatus) {
+      incomingOrder.status = newIncomingStatus;
+      addStatusHistory(db, incomingOrder.id, prevIncomingStatus, newIncomingStatus, now,
+        `Matched with order ${candidate.id.slice(0, 8)}, filled ${fillQty} at ${executionPrice.value} ${executionPrice.ccy}`);
+    }
+  }
+}
+
 root.get("/executions/by-order/:orderId", async (req, res) => {
   const { orderId } = req.params;
   const { q, _page, _per_page } = req.query;
@@ -209,22 +286,23 @@ function sendJson(res, status, data) {
 }
 
 root.post("/orders", async (req, res) => {
-  console.log("POST /orders handler reached, body:", req.body);
   try {
     await db.read();
-  const now = new Date().toISOString();
-  const order = {
-    id: crypto.randomUUID(),
-    ...req.body,
-    remainingQuantity: req.body.remainingQuantity ?? req.body.quantity,
-    status: req.body.status ?? "open",
-    createdAt: req.body.createdAt ?? now,
-    updatedAt: req.body.updatedAt ?? now,
-  };
-  db.data.orders.push(order);
-  await db.write();
-  console.log("Order created:", order.id);
-  sendJson(res, 201, order);
+    const now = new Date().toISOString();
+    const order = {
+      id: crypto.randomUUID(),
+      ...req.body,
+      remainingQuantity: req.body.remainingQuantity ?? req.body.quantity,
+      status: req.body.status ?? "open",
+      createdAt: req.body.createdAt ?? now,
+      updatedAt: req.body.updatedAt ?? now,
+    };
+    db.data.orders.push(order);
+    addStatusHistory(db, order.id, null, "open", now, "Order created");
+    matchOrder(db, order, now);
+    await db.write();
+    console.log("Order created:", order.id, "status:", order.status);
+    sendJson(res, 201, order);
   } catch (err) {
     console.error("POST /orders error:", err);
     sendJson(res, 500, { error: String(err) });
