@@ -1,7 +1,6 @@
 import { Low } from "lowdb";
 import { JSONFile } from "lowdb/node";
 import { App } from "@tinyhttp/app";
-import { json } from "milliparsec";
 import { createApp } from "json-server/lib/app.js";
 import { join, dirname } from "path";
 import { fileURLToPath } from "url";
@@ -18,7 +17,18 @@ const db = new Low(adapter, {
 await db.read();
 
 const root = new App();
-root.use(json());
+
+root.use((req, res, next) => {
+  console.log(`→ ${req.method} ${req.url}`);
+  if (req.method === "GET" || req.method === "OPTIONS" || req.body) return next();
+  let body = "";
+  req.on("data", (chunk) => { body += chunk; });
+  req.on("end", () => {
+    try { req.body = JSON.parse(body); } catch { req.body = {}; }
+    console.log(`  body parsed:`, req.body);
+    next();
+  });
+});
 
 root.use((req, res, next) => {
   res.setHeader("Access-Control-Allow-Origin", "*");
@@ -189,8 +199,58 @@ root.get("/executions/by-order/:orderId", async (req, res) => {
   });
 });
 
+function sendJson(res, status, data) {
+  const body = JSON.stringify(data);
+  res.writeHead(status, {
+    "Content-Type": "application/json",
+    "Content-Length": Buffer.byteLength(body),
+  });
+  res.end(body);
+}
+
+root.post("/orders", async (req, res) => {
+  console.log("POST /orders handler reached, body:", req.body);
+  try {
+    await db.read();
+  const now = new Date().toISOString();
+  const order = {
+    id: crypto.randomUUID(),
+    ...req.body,
+    remainingQuantity: req.body.remainingQuantity ?? req.body.quantity,
+    status: req.body.status ?? "open",
+    createdAt: req.body.createdAt ?? now,
+    updatedAt: req.body.updatedAt ?? now,
+  };
+  db.data.orders.push(order);
+  await db.write();
+  console.log("Order created:", order.id);
+  sendJson(res, 201, order);
+  } catch (err) {
+    console.error("POST /orders error:", err);
+    sendJson(res, 500, { error: String(err) });
+  }
+});
+
+root.delete("/orders/:id", async (req, res) => {
+  await db.read();
+  const index = db.data.orders.findIndex((o) => o.id === req.params.id);
+  if (index === -1) return sendJson(res, 404, { error: "Not found" });
+  db.data.orders.splice(index, 1);
+  await db.write();
+  sendJson(res, 200, {});
+});
+
+root.patch("/orders/:id", async (req, res) => {
+  await db.read();
+  const order = db.data.orders.find((o) => o.id === req.params.id);
+  if (!order) return sendJson(res, 404, { error: "Not found" });
+  Object.assign(order, req.body);
+  await db.write();
+  sendJson(res, 200, order);
+});
+
 root.use("/orders", async (req, res, next) => {
-  if (!hasCustomFilter(req.query)) {
+  if (req.method !== "GET" || !hasCustomFilter(req.query)) {
     next();
     return;
   }
