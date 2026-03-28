@@ -1,31 +1,30 @@
-import { Suspense } from "react";
+import { redirect } from "next/navigation";
 import { PageContainer } from "@/components/layout/page-container";
 import { OrderTable } from "@/components/orders/orderTable/orderTable";
-import { getOrders } from "@/lib/api/orders";
 import { parseOrdersParams } from "@/lib/parseOrdersParams";
-import { DataTableSkeleton } from "@/components/shared/dataTable/dataTableSkeleton";
+import { startOfTodayIso, cleanQueryString } from "@/lib/formatters";
 
 interface OrdersPageProps {
   searchParams: Promise<Record<string, string | undefined>>;
 }
 
 export default async function OrdersPage({ searchParams }: OrdersPageProps) {
-  const ordersParams = parseOrdersParams(await searchParams);
+  const raw = await searchParams;
 
-  const page = ordersParams.page ?? 1;
-  const perPage = ordersParams.perPage ?? 50;
-  const fetchParams =
-    page > 1
-      ? { ...ordersParams, page: 1, perPage: perPage * page }
-      : ordersParams;
+  if (!raw.createdAt_gte) {
+    const params = new URLSearchParams();
+    for (const [key, value] of Object.entries(raw)) {
+      if (value !== undefined) params.set(key, value);
+    }
+    params.set("createdAt_gte", startOfTodayIso());
+    redirect(`/orders?${cleanQueryString(params)}`);
+  }
 
-  const ordersPromise = getOrders(fetchParams);
+  const ordersParams = parseOrdersParams(raw);
 
   return (
     <PageContainer>
-      <Suspense fallback={<DataTableSkeleton columns={8} />}>
-        <OrderTable ordersPromise={ordersPromise} params={ordersParams} />
-      </Suspense>
+      <OrderTable params={ordersParams} />
     </PageContainer>
   );
 }

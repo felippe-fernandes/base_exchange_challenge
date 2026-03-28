@@ -21,7 +21,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import type { Order } from "@/types/order";
 import { useCreateOrder } from "@/hooks/useCreateOrder";
 
 const CURRENCIES = [
@@ -35,15 +34,10 @@ function FieldError({ message }: { message?: string }) {
   return <p className="text-xs text-destructive">{message}</p>;
 }
 
-interface CreateOrderDialogProps {
-  onOrderCreated: (order: Order) => void;
-}
-
-export function CreateOrderDialog({ onOrderCreated }: CreateOrderDialogProps) {
+export function CreateOrderDialog() {
   const [open, setOpen] = useState(false);
   const { form, onSubmit, isPending } = useCreateOrder({
     onSuccess: () => setOpen(false),
-    onOrderCreated,
   });
   const {
     register,

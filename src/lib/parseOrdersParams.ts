@@ -1,5 +1,6 @@
 import type { OrdersParams } from "@/lib/api/orders";
 import { ORDER_TABLE_DEFAULTS } from "@/lib/constants";
+import { normalizeToIso } from "@/lib/formatters";
 
 const DEFAULTS = { perPage: 50, sort: ORDER_TABLE_DEFAULTS.defaultSort } as const;
 
@@ -24,7 +25,7 @@ export function parseOrdersParams(
     quantity_lte: optionalNumber(raw.quantity_lte),
     remainingQuantity_gte: optionalNumber(raw.remainingQuantity_gte),
     remainingQuantity_lte: optionalNumber(raw.remainingQuantity_lte),
-    createdAt_gte: raw.createdAt_gte,
-    createdAt_lte: raw.createdAt_lte,
+    createdAt_gte: normalizeToIso(raw.createdAt_gte),
+    createdAt_lte: normalizeToIso(raw.createdAt_lte),
   };
 }

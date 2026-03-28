@@ -1,8 +1,8 @@
 "use client";
 
-import { use, useState } from "react";
+import { useState } from "react";
 import type { Order } from "@/types/order";
-import type { PaginatedOrders, OrdersParams } from "@/lib/api/orders";
+import type { OrdersParams } from "@/lib/api/orders";
 import { DataTable } from "@/components/shared/dataTable/dataTable";
 import { DataTableActiveFilters } from "@/components/shared/dataTable/dataTableActiveFilters";
 import { useOrdersTable } from "@/hooks/useOrdersTable";
@@ -32,24 +32,22 @@ const ORDER_FILTER_LABELS: Record<string, string> = {
 };
 
 interface OrderTableProps {
-  ordersPromise: Promise<PaginatedOrders>;
   params: OrdersParams;
 }
 
-export function OrderTable({ ordersPromise, params }: OrderTableProps) {
-  const initialData = use(ordersPromise);
+export function OrderTable({ params }: OrderTableProps) {
   const hydrated = useUserConfigHydrated();
-  const { table, orders, hasNextPage, isLoadingMore, loadMore, totalItems, addOrder } =
-    useOrdersTable({ initialData, params, columns });
+  const { table, orders, hasNextPage, isLoadingMore, isLoading, loadMore, totalItems } =
+    useOrdersTable({ params, columns });
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
 
-  if (!hydrated) return <DataTableSkeleton columns={columns.length} />;
+  if (!hydrated || isLoading) return <DataTableSkeleton columns={columns.length} />;
 
   return (
     <>
       <div className="mb-6 flex items-center justify-between">
         <h2 className="text-2xl font-bold tracking-tight">Orders</h2>
-        <CreateOrderDialog onOrderCreated={addOrder} />
+        <CreateOrderDialog />
       </div>
       <DataTableActiveFilters filterLabels={ORDER_FILTER_LABELS} tableDefaults={ORDER_TABLE_DEFAULTS} />
       <DataTable
