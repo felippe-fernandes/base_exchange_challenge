@@ -29,6 +29,7 @@ export function useOrdersTable({ initialData, params, columns }: UseOrdersTableP
   const { columnOrder, setColumnOrder, columnSizing: savedSizing, setColumnSizing } = useUserConfigStore();
   const initialPage = params.page ?? 1;
 
+  const [newOrders, setNewOrders] = useState<Order[]>([]);
   const [extraPages, setExtraPages] = useState<Order[][]>([]);
   const [currentPage, setCurrentPage] = useState(initialPage);
   const [isPending, startTransition] = useTransition();
@@ -39,6 +40,7 @@ export function useOrdersTable({ initialData, params, columns }: UseOrdersTableP
   const prevDataRef = useRef(initialData);
   if (prevDataRef.current !== initialData) {
     prevDataRef.current = initialData;
+    setNewOrders([]);
     setExtraPages([]);
     setCurrentPage(initialPage);
     setExpanded({});
@@ -66,13 +68,17 @@ export function useOrdersTable({ initialData, params, columns }: UseOrdersTableP
     });
   }, [currentPage, hasNextPage, isPending, params, navigate, setTotalItems]);
 
-  const orders = useMemo(
-    () => [initialData.data, ...extraPages].flat(),
-    [initialData.data, extraPages],
+  const addOrder = useCallback((order: Order) => {
+    setNewOrders((prev) => [order, ...prev]);
+  }, []);
+
+  const allOrders = useMemo(
+    () => [...newOrders, ...initialData.data, ...extraPages.flat()],
+    [newOrders, initialData.data, extraPages],
   );
 
   const table = useReactTable({
-    data: orders,
+    data: allOrders,
     columns,
     getRowId: (row) => row.id,
     state: {
@@ -100,5 +106,5 @@ export function useOrdersTable({ initialData, params, columns }: UseOrdersTableP
     manualFiltering: true,
   });
 
-  return { table, orders, hasNextPage, isLoadingMore: isPending, loadMore, totalItems };
+  return { table, orders: allOrders, hasNextPage, isLoadingMore: isPending, loadMore, totalItems, addOrder };
 }

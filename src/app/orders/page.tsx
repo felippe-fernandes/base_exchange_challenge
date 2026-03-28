@@ -22,7 +22,7 @@ export default async function OrdersPage({ searchParams }: OrdersPageProps) {
   const ordersPromise = getOrders(fetchParams);
 
   return (
-    <PageContainer title="Orders">
+    <PageContainer>
       <Suspense fallback={<DataTableSkeleton columns={8} />}>
         <OrderTable ordersPromise={ordersPromise} params={ordersParams} />
       </Suspense>
