@@ -40,3 +40,24 @@ export const ORDER_TABLE_DEFAULTS: TableDefaults = {
   defaultSort: "-createdAt",
   columnOrder: ORDER_COLUMNS,
 };
+
+export const ORDER_FILTER_LABELS: Record<string, string> = {
+  id_like: "ID",
+  instrument: "Instrument",
+  side: "Side",
+  status: "Status",
+  price_gte: "Price min",
+  price_lte: "Price max",
+  quantity_gte: "Qty min",
+  quantity_lte: "Qty max",
+  remainingQuantity_gte: "Remaining min",
+  remainingQuantity_lte: "Remaining max",
+  createdAt_gte: "Date from",
+  createdAt_lte: "Date to",
+};
+
+export const CURRENCIES = [
+  "USD", "EUR", "GBP", "JPY", "CHF", "CAD", "AUD", "NZD",
+  "CNY", "HKD", "SGD", "KRW", "INR", "BRL", "MXN", "ZAR",
+  "SEK", "NOK", "DKK", "PLN", "TRY", "THB", "TWD", "AED",
+];

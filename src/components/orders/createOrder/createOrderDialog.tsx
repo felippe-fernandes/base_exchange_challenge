@@ -22,17 +22,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useCreateOrder } from "@/hooks/useCreateOrder";
-
-const CURRENCIES = [
-  "USD", "EUR", "GBP", "JPY", "CHF", "CAD", "AUD", "NZD",
-  "CNY", "HKD", "SGD", "KRW", "INR", "BRL", "MXN", "ZAR",
-  "SEK", "NOK", "DKK", "PLN", "TRY", "THB", "TWD", "AED",
-];
-
-function FieldError({ message }: { message?: string }) {
-  if (!message) return null;
-  return <p className="text-xs text-destructive">{message}</p>;
-}
+import { CURRENCIES } from "@/lib/constants";
+import { FieldError } from "@/components/shared/fieldError";
 
 export function CreateOrderDialog() {
   const [open, setOpen] = useState(false);

@@ -1,4 +1,5 @@
 import type { Order } from "@/types/order";
+import { formatOrderLabel } from "@/lib/formatters";
 import {
   Dialog,
   DialogContent,
@@ -21,7 +22,7 @@ export function OrderDetailsDialog({
 }: OrderDetailsDialogProps) {
   if (!order) return null;
 
-  const orderLabel = `${order.instrument} #${order.id.slice(0, 8)}`;
+  const orderLabel = formatOrderLabel(order);
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>

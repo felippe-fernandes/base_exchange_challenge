@@ -15,15 +15,15 @@ export const MoneySchema = z.object({
 });
 
 export const OrderSchema = z.object({
-  id: z.string(),
+  id: z.uuid(),
   instrument: z.string().min(1),
   side: OrderSideSchema,
   price: MoneySchema,
   quantity: z.number().int().positive(),
   remainingQuantity: z.number().int().min(0),
   status: OrderStatusSchema,
-  createdAt: z.string().datetime(),
-  updatedAt: z.string().datetime(),
+  createdAt: z.iso.datetime(),
+  updatedAt: z.iso.datetime(),
 });
 
 export const CreateOrderSchema = z.object({
@@ -37,20 +37,20 @@ export const CreateOrderSchema = z.object({
 });
 
 export const ExecutionSchema = z.object({
-  id: z.string(),
-  buyOrderId: z.string(),
-  sellOrderId: z.string(),
+  id: z.uuid(),
+  buyOrderId: z.uuid(),
+  sellOrderId: z.uuid(),
   instrument: z.string().min(1),
   price: MoneySchema,
   quantity: z.number().int().positive(),
-  executedAt: z.string().datetime(),
+  executedAt: z.iso.datetime(),
 });
 
 export const StatusHistoryEntrySchema = z.object({
-  id: z.string(),
-  orderId: z.string(),
+  id: z.uuid(),
+  orderId: z.uuid(),
   fromStatus: OrderStatusSchema.nullable(),
   toStatus: OrderStatusSchema,
-  timestamp: z.string().datetime(),
+  timestamp: z.iso.datetime(),
   reason: z.string(),
 });
