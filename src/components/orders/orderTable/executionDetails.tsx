@@ -1,6 +1,6 @@
 import { Suspense, useState } from "react";
 import { ChevronLeft, ChevronRight, Search } from "lucide-react";
-import type { Money, Execution } from "@/types/order";
+import type { Execution } from "@/types/order";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -20,8 +20,7 @@ const executionColumns: MiniTableColumn<Execution>[] = [
     key: "price",
     header: "Price",
     cell: (row) => {
-      const price = row.price as Money;
-      return formatCurrency(price.value, price.ccy);
+      return formatCurrency(row.price.value, row.price.ccy);
     },
   },
   {

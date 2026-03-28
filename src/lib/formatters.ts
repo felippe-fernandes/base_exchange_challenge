@@ -47,6 +47,10 @@ export function normalizeToIso(value?: string): string | undefined {
   return d.toISOString();
 }
 
+export function formatOrderLabel(order: { instrument: string; id: string }): string {
+  return `${order.instrument} #${order.id.slice(0, 8)}`;
+}
+
 export function cleanQueryString(params: URLSearchParams): string {
   return params.toString().replaceAll("%3A", ":");
 }

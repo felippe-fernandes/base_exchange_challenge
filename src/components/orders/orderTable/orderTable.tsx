@@ -8,28 +8,14 @@ import { DataTableActiveFilters } from "@/components/shared/dataTable/dataTableA
 import { useOrdersTable } from "@/hooks/useOrdersTable";
 import { useUserConfigHydrated, useUserConfigStore } from "@/stores/userConfigStore";
 import { DataTableSkeleton } from "@/components/shared/dataTable/dataTableSkeleton";
-import { ORDER_TABLE_DEFAULTS } from "@/lib/constants";
+import { ORDER_TABLE_DEFAULTS, ORDER_FILTER_LABELS } from "@/lib/constants";
+import { formatOrderLabel } from "@/lib/formatters";
 import { OrderDetailsDialog } from "../orderDetails/orderDetailsDialog";
 import { CreateOrderDialog } from "../createOrder/createOrderDialog";
 import { columns } from "./columns";
 import { OrderExpandedRow } from "./orderExpandedRow";
 
 useUserConfigStore.getState().initDefaults(ORDER_TABLE_DEFAULTS);
-
-const ORDER_FILTER_LABELS: Record<string, string> = {
-  id_like: "ID",
-  instrument: "Instrument",
-  side: "Side",
-  status: "Status",
-  price_gte: "Price min",
-  price_lte: "Price max",
-  quantity_gte: "Qty min",
-  quantity_lte: "Qty max",
-  remainingQuantity_gte: "Remaining min",
-  remainingQuantity_lte: "Remaining max",
-  createdAt_gte: "Date from",
-  createdAt_lte: "Date to",
-};
 
 interface OrderTableProps {
   params: OrdersParams;
@@ -59,7 +45,7 @@ export function OrderTable({ params }: OrderTableProps) {
         renderSubComponent={(row) => (
           <OrderExpandedRow
             orderId={row.original.id}
-            orderLabel={`${row.original.instrument} #${row.original.id.slice(0, 8)}`}
+            orderLabel={formatOrderLabel(row.original)}
           />
         )}
         footer={
