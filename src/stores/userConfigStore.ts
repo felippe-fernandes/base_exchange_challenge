@@ -4,8 +4,10 @@ import { persist, createJSONStorage } from "zustand/middleware";
 import {
   UserConfigSchema,
   DEFAULT_USER_CONFIG,
+  DEFAULT_TABLE_CONFIG,
   type UserConfig,
   type TableDefaults,
+  type TableConfig,
 } from "@/lib/schemas/userConfig.schema";
 
 interface UserConfigActions {
@@ -13,6 +15,7 @@ interface UserConfigActions {
   initDefaults: (defaults: TableDefaults) => void;
   setDefaultSort: (sort: string) => void;
   setPerPage: (perPage: number) => void;
+  getTableConfig: () => TableConfig;
   setColumnOrder: (order: string[]) => void;
   setColumnSizing: (sizing: Record<string, number>) => void;
   resetColumnOrder: () => void;
@@ -31,23 +34,60 @@ export const useUserConfigStore = create<UserConfigState>()(
   persist(
     (set, get) => ({
       ...DEFAULT_USER_CONFIG,
-      tableDefaults: { defaultSort: "", columnOrder: [] },
+      tableDefaults: { tableId: "", defaultSort: "", columnOrder: [] },
 
       initDefaults: (defaults) => {
         const state = get();
-        if (state.tableDefaults.defaultSort === defaults.defaultSort
+        if (state.tableDefaults.tableId === defaults.tableId
+          && state.tableDefaults.defaultSort === defaults.defaultSort
           && state.tableDefaults.columnOrder.length === defaults.columnOrder.length) return;
+        const tableConfig = state.tables[defaults.tableId] ?? DEFAULT_TABLE_CONFIG;
         const updates: Partial<UserConfig> = {};
-        if (state.columnOrder.length === 0) updates.columnOrder = defaults.columnOrder;
         if (!state.defaultSort) updates.defaultSort = defaults.defaultSort;
+        if (tableConfig.columnOrder.length === 0) {
+          updates.tables = {
+            ...state.tables,
+            [defaults.tableId]: { ...tableConfig, columnOrder: defaults.columnOrder },
+          };
+        }
         set({ tableDefaults: defaults, ...updates });
       },
       setDefaultSort: (sort) => set({ defaultSort: sort }),
       setPerPage: (perPage) => set({ perPage }),
-      setColumnOrder: (order) => set({ columnOrder: order }),
-      setColumnSizing: (sizing) => set({ columnSizing: sizing }),
-      resetColumnOrder: () => set((s) => ({ columnOrder: [...s.tableDefaults.columnOrder] })),
-      resetColumnSizing: () => set({ columnSizing: { ...DEFAULT_USER_CONFIG.columnSizing } }),
+      getTableConfig: () => {
+        const state = get();
+        return state.tables[state.tableDefaults.tableId] ?? DEFAULT_TABLE_CONFIG;
+      },
+      setColumnOrder: (order) => set((s) => ({
+        tables: {
+          ...s.tables,
+          [s.tableDefaults.tableId]: { ...(s.tables[s.tableDefaults.tableId] ?? DEFAULT_TABLE_CONFIG), columnOrder: order },
+        },
+      })),
+      setColumnSizing: (sizing) => set((s) => ({
+        tables: {
+          ...s.tables,
+          [s.tableDefaults.tableId]: { ...(s.tables[s.tableDefaults.tableId] ?? DEFAULT_TABLE_CONFIG), columnSizing: sizing },
+        },
+      })),
+      resetColumnOrder: () => set((s) => ({
+        tables: {
+          ...s.tables,
+          [s.tableDefaults.tableId]: {
+            ...(s.tables[s.tableDefaults.tableId] ?? DEFAULT_TABLE_CONFIG),
+            columnOrder: [...s.tableDefaults.columnOrder],
+          },
+        },
+      })),
+      resetColumnSizing: () => set((s) => ({
+        tables: {
+          ...s.tables,
+          [s.tableDefaults.tableId]: {
+            ...(s.tables[s.tableDefaults.tableId] ?? DEFAULT_TABLE_CONFIG),
+            columnSizing: {},
+          },
+        },
+      })),
     }),
     {
       name: "user-config",
@@ -56,7 +96,7 @@ export const useUserConfigStore = create<UserConfigState>()(
         ...current,
         ...safeParse(persisted),
       }),
-      partialize: ({ tableDefaults: _td, initDefaults: _id, ...rest }) => rest as UserConfig,
+      partialize: ({ tableDefaults: _td, initDefaults: _id, getTableConfig: _gtc, ...rest }) => rest as UserConfig,
     },
   ),
 );
