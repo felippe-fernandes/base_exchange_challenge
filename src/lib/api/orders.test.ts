@@ -9,6 +9,7 @@ import {
   getOrderHistory,
   getOrders,
   getRangeValues,
+  reseedOrders,
 } from "./orders";
 
 describe("orders api", () => {
@@ -37,10 +38,12 @@ describe("orders api", () => {
     await getExecutions("1", { page: 3, perPage: 5, q: "abc" });
     await getFilterValues("status", "op");
     await getRangeValues("price");
+    await reseedOrders(1200);
 
     expect(requestSpy).toHaveBeenNthCalledWith(1, "/statusHistory?orderId=1&_sort=-timestamp");
     expect(requestSpy).toHaveBeenNthCalledWith(2, "/executions/by-order/1?_page=3&_per_page=5&q=abc");
     expect(requestSpy).toHaveBeenNthCalledWith(3, "/orders/filters/status?q=op");
     expect(requestSpy).toHaveBeenNthCalledWith(4, "/orders/range/price");
+    expect(requestSpy).toHaveBeenNthCalledWith(5, "/admin/reseed", expect.objectContaining({ method: "POST" }));
   });
 });

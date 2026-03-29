@@ -40,6 +40,14 @@ export interface RangeValues {
   max: number;
 }
 
+export interface ReseedResponse {
+  message: string;
+  count: number;
+  orders: number;
+  statusHistory: number;
+  executions: number;
+}
+
 const PARAM_MAP: Record<string, string> = {
   page: "_page",
   perPage: "_per_page",
@@ -131,4 +139,11 @@ export async function getFilterValues(
 
 export async function getRangeValues(field: string): Promise<RangeValues> {
   return request<RangeValues>(`/orders/range/${field}`);
+}
+
+export async function reseedOrders(count = 1200): Promise<ReseedResponse> {
+  return request<ReseedResponse>("/admin/reseed", {
+    method: "POST",
+    body: JSON.stringify({ count }),
+  });
 }

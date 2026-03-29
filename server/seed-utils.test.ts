@@ -32,4 +32,15 @@ describe("seed utils", () => {
       },
     });
   });
+
+  it("writes a seeded database file", () => {
+    const writeSpy = vi.spyOn(require("fs"), "writeFileSync").mockImplementation(() => {});
+    const result = seedUtils.writeSeedFile(3, "custom-db.json");
+
+    expect(result.counts.orders).toBe(3);
+    expect(result.outputPath).toBe("custom-db.json");
+    expect(writeSpy).toHaveBeenCalled();
+
+    writeSpy.mockRestore();
+  });
 });

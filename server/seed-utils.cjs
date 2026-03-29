@@ -1,4 +1,6 @@
 const { randomUUID } = require("crypto");
+const fs = require("fs");
+const path = require("path");
 const { INSTRUMENTS } = require("./instruments");
 
 const SIDES = ["buy", "sell"];
@@ -171,6 +173,20 @@ function generateOrders(count) {
   return { orders, statusHistory, executions };
 }
 
+function writeSeedFile(count, outputPath = path.join(__dirname, "db.json")) {
+  const db = generateOrders(count);
+  fs.writeFileSync(outputPath, JSON.stringify(db, null, 2));
+  return {
+    db,
+    outputPath,
+    counts: {
+      orders: db.orders.length,
+      statusHistory: db.statusHistory.length,
+      executions: db.executions.length,
+    },
+  };
+}
+
 module.exports = {
   SIDES,
   getCcy,
@@ -179,4 +195,5 @@ module.exports = {
   randomElement,
   randomDate,
   generateOrders,
+  writeSeedFile,
 };

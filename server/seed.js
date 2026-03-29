@@ -1,18 +1,41 @@
-const { randomUUID } = require("crypto");
-const fs = require("fs");
-const path = require("path");
-const { generateOrders } = require("./seed-utils.cjs");
+const { writeSeedFile } = require("./seed-utils.cjs");
 
-const ORDER_COUNT = 1200;
+const DEFAULT_ORDER_COUNT = 1200;
 
-console.log(`Generating ${ORDER_COUNT} orders...`);
-const db = generateOrders(ORDER_COUNT);
+function resolveOrderCount(argv = process.argv, lifecycleEvent = process.env.npm_lifecycle_event ?? "") {
+  const argValue = Number(argv[2]);
+  if (Number.isInteger(argValue) && argValue > 0) {
+    return argValue;
+  }
 
-const outputPath = path.join(__dirname, "db.json");
-fs.writeFileSync(outputPath, JSON.stringify(db, null, 2));
+  const suffix = lifecycleEvent.split(":")[1];
+  const eventValue = Number(suffix);
+  if (Number.isInteger(eventValue) && eventValue > 0) {
+    return eventValue;
+  }
 
-console.log(`Done! Created:`);
-console.log(`  - ${db.orders.length} orders`);
-console.log(`  - ${db.statusHistory.length} status history entries`);
-console.log(`  - ${db.executions.length} executions`);
-console.log(`Output: ${outputPath}`);
+  return DEFAULT_ORDER_COUNT;
+}
+
+function main() {
+  const orderCount = resolveOrderCount();
+
+  console.log(`Generating ${orderCount} orders...`);
+  const { counts, outputPath } = writeSeedFile(orderCount);
+
+  console.log(`Done! Created:`);
+  console.log(`  - ${counts.orders} orders`);
+  console.log(`  - ${counts.statusHistory} status history entries`);
+  console.log(`  - ${counts.executions} executions`);
+  console.log(`Output: ${outputPath}`);
+}
+
+if (require.main === module) {
+  main();
+}
+
+module.exports = {
+  DEFAULT_ORDER_COUNT,
+  resolveOrderCount,
+  main,
+};
