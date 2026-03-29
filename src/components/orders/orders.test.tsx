@@ -1,18 +1,19 @@
-import React from "react";
-import { fireEvent, render, screen, waitFor } from "@testing-library/react";
-import { toast } from "sonner";
-import { OrderDetailsDialog } from "./orderDetails/orderDetailsDialog";
-import { OrderDetailsTabs } from "./orderDetailsTabs";
-import { OrderExpandedRow } from "./orderTable/orderExpandedRow";
-import { OrderInfo } from "./orderDetails/orderInfo";
-import { OrderTimeline } from "./orderDetails/orderTimeline";
-import { ExecutionDetails } from "./orderTable/executionDetails";
-import { CreateOrderDialog } from "./createOrder/createOrderDialog";
-import { orderCreatedToast } from "./createOrder/orderCreatedToast";
 import { DEFAULT_USER_CONFIG } from "@/lib/schemas/userConfig.schema";
 import { useUserConfigStore } from "@/stores/userConfigStore";
 import { sampleExecution, sampleHistory, sampleOrder } from "@/test/fixtures";
 import { renderWithProviders } from "@/test/testUtils";
+import { screen, waitFor } from "@testing-library/react";
+import React from "react";
+import { toast } from "sonner";
+import { beforeEach, describe, expect, it, vi } from "vitest";
+import { CreateOrderDialog } from "./createOrder/createOrderDialog";
+import { orderCreatedToast } from "./createOrder/orderCreatedToast";
+import { OrderDetailsDialog } from "./orderDetails/orderDetailsDialog";
+import { OrderInfo } from "./orderDetails/orderInfo";
+import { OrderTimeline } from "./orderDetails/orderTimeline";
+import { OrderDetailsTabs } from "./orderDetailsTabs";
+import { ExecutionDetails } from "./orderTable/executionDetails";
+import { OrderExpandedRow } from "./orderTable/orderExpandedRow";
 
 vi.mock("@/hooks/useOrderDetails", () => ({
   useOrderDetails: () => ({ history: sampleHistory }),

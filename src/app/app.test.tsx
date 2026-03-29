@@ -1,11 +1,10 @@
-import React from "react";
-import { fireEvent, render, screen } from "@testing-library/react";
 import "@/test/navigation";
-import Home from "./page";
-import OrdersPage from "./orders/page";
-import OrdersLoading from "./orders/loading";
+import { fireEvent, render, screen } from "@testing-library/react";
+import { describe, expect, it, vi } from "vitest";
 import OrdersError from "./orders/error";
-import { sampleOrder } from "@/test/fixtures";
+import OrdersLoading from "./orders/loading";
+import OrdersPage from "./orders/page";
+import Home from "./page";
 
 vi.mock("@/components/orders/orderTable/orderTable", () => ({
   OrderTable: ({ params }: { params: unknown }) => <div>{JSON.stringify(params)}</div>,
@@ -13,7 +12,7 @@ vi.mock("@/components/orders/orderTable/orderTable", () => ({
 
 describe("app routes", () => {
   it("redirects home to orders", () => {
-    expect(() => render(<Home />)).toThrow("NEXT_REDIRECT:/orders");
+    expect(() => Home()).toThrow("NEXT_REDIRECT:/orders");
   });
 
   it("renders loading and error states", () => {

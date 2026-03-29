@@ -1,5 +1,6 @@
-import React from "react";
+import { copyToClipboard } from "@/lib/utils";
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { describe, expect, it, vi } from "vitest";
 import { CopyButton } from "./copyButton";
 import { ErrorBoundary } from "./errorBoundary";
 import { FieldDisplay } from "./fieldDisplay";
@@ -7,7 +8,6 @@ import { FieldError } from "./fieldError";
 import { MiniTable } from "./miniTable";
 import { StatusBadge } from "./statusBadge";
 import { Timeline } from "./timeline";
-import { copyToClipboard } from "@/lib/utils";
 
 vi.mock("@/lib/utils", async (importOriginal) => {
   const actual = await importOriginal<typeof import("@/lib/utils")>();
@@ -17,7 +17,7 @@ vi.mock("@/lib/utils", async (importOriginal) => {
   };
 });
 
-function Thrower() {
+function Thrower(): React.ReactNode {
   throw new Error("boom");
 }
 
@@ -70,7 +70,7 @@ describe("shared components", () => {
   });
 
   it("shows error boundary fallback", () => {
-    const errorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+    const errorSpy = vi.spyOn(console, "error").mockImplementation(() => { });
     render(
       <ErrorBoundary fallback={<div>Fallback</div>}>
         <Thrower />
