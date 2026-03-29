@@ -1,5 +1,8 @@
 import path from "path";
-import { defineConfig } from "vitest/config";
+import { fileURLToPath } from "url";
+import { configDefaults, defineConfig } from "vitest/config";
+
+const rootDir = path.dirname(fileURLToPath(import.meta.url));
 
 export default defineConfig({
   test: {
@@ -7,6 +10,16 @@ export default defineConfig({
     setupFiles: ["./vitest.setup.ts"],
     globals: true,
     css: false,
+    include: [
+      "src/**/*.{test,spec}.{ts,tsx}",
+      "server/**/*.{test,spec}.{js,ts}",
+    ],
+    exclude: [
+      ...configDefaults.exclude,
+      "e2e/**",
+      "playwright-report/**",
+      "test-results/**",
+    ],
     coverage: {
       provider: "v8",
       reporter: ["text", "html"],
@@ -27,7 +40,7 @@ export default defineConfig({
   },
   resolve: {
     alias: {
-      "@": path.resolve(__dirname, "./src"),
+      "@": path.resolve(rootDir, "./src"),
     },
   },
 });
