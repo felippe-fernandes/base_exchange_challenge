@@ -1,4 +1,4 @@
-import { useSyncExternalStore } from "react";
+import { useEffect, useState } from "react";
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
 import {
@@ -15,6 +15,10 @@ interface UserConfigActions {
   initDefaults: (defaults: TableDefaults) => void;
   setDefaultSort: (sort: string) => void;
   setPerPage: (perPage: number) => void;
+  setTheme: (theme: UserConfig["theme"]) => void;
+  setPreferredCurrency: (currency: string) => void;
+  setDateFormat: (dateFormat: UserConfig["dateFormat"]) => void;
+  setTimeFormat: (timeFormat: UserConfig["timeFormat"]) => void;
   getTableConfig: () => TableConfig;
   setColumnOrder: (order: string[]) => void;
   setColumnSizing: (sizing: Record<string, number>) => void;
@@ -54,6 +58,10 @@ export const useUserConfigStore = create<UserConfigState>()(
       },
       setDefaultSort: (sort) => set({ defaultSort: sort }),
       setPerPage: (perPage) => set({ perPage }),
+      setTheme: (theme) => set({ theme }),
+      setPreferredCurrency: (preferredCurrency) => set({ preferredCurrency }),
+      setDateFormat: (dateFormat) => set({ dateFormat }),
+      setTimeFormat: (timeFormat) => set({ timeFormat }),
       getTableConfig: () => {
         const state = get();
         return state.tables[state.tableDefaults.tableId] ?? DEFAULT_TABLE_CONFIG;
@@ -101,13 +109,23 @@ export const useUserConfigStore = create<UserConfigState>()(
   ),
 );
 
-const noop = () => () => {};
-
 export function useUserConfigHydrated() {
   const persist = useUserConfigStore.persist;
-  return useSyncExternalStore(
-    persist?.onFinishHydration ?? noop,
-    () => persist?.hasHydrated() ?? false,
-    () => false,
-  );
+  const [hydrated, setHydrated] = useState(() => persist?.hasHydrated() ?? false);
+
+  useEffect(() => {
+    if (!persist) return;
+
+    setHydrated(persist.hasHydrated());
+
+    const unsubscribeHydrate = persist.onHydrate(() => setHydrated(false));
+    const unsubscribeFinishHydration = persist.onFinishHydration(() => setHydrated(true));
+
+    return () => {
+      unsubscribeHydrate();
+      unsubscribeFinishHydration();
+    };
+  }, [persist]);
+
+  return hydrated;
 }

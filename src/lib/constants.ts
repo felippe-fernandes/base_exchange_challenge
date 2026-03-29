@@ -62,3 +62,21 @@ export const CURRENCIES = [
   "CNY", "HKD", "SGD", "KRW", "INR", "BRL", "MXN", "ZAR",
   "SEK", "NOK", "DKK", "PLN", "TRY", "THB", "TWD", "AED",
 ];
+
+export const THEME_OPTIONS = [
+  { value: "light", label: "Light" },
+  { value: "dark", label: "Dark" },
+  { value: "system", label: "System" },
+] as const;
+
+export const DATE_FORMAT_OPTIONS = [
+  { value: "iso", label: "YYYY-MM-DD" },
+  { value: "br", label: "DD/MM/YYYY" },
+  { value: "us", label: "MM/DD/YYYY" },
+  { value: "text", label: "Mar 29, 2026" },
+] as const;
+
+export const TIME_FORMAT_OPTIONS = [
+  { value: "24h", label: "24-hour" },
+  { value: "12h", label: "12-hour" },
+] as const;

@@ -6,6 +6,7 @@ import { useUserConfigStore } from "@/stores/userConfigStore";
 import { createQueryClientWrapper, createTestQueryClient } from "@/test/testUtils";
 import { sampleOrder } from "@/test/fixtures";
 import { useOrdersTable } from "./useOrdersTable";
+import { DEFAULT_USER_CONFIG } from "@/lib/schemas/userConfig.schema";
 
 vi.mock("@/lib/api/orders", () => ({
   getOrders: vi.fn(),
@@ -19,11 +20,14 @@ describe("useOrdersTable", () => {
 
   beforeEach(() => {
     useUserConfigStore.setState({
-      defaultSort: "-createdAt",
-      perPage: 50,
-      columnOrder: ["id", "instrument"],
-      columnSizing: {},
-      tableDefaults: { defaultSort: "-createdAt", columnOrder: ["id", "instrument"] },
+      ...DEFAULT_USER_CONFIG,
+      tables: {
+        orders: {
+          columnOrder: ["id", "instrument"],
+          columnSizing: {},
+        },
+      },
+      tableDefaults: { tableId: "orders", defaultSort: "-createdAt", columnOrder: ["id", "instrument"] },
     });
     vi.mocked(getOrders).mockResolvedValue({
       data: [sampleOrder],
@@ -55,5 +59,28 @@ describe("useOrdersTable", () => {
     await waitFor(() => {
       expect(getOrders).toHaveBeenCalledWith({ page: 2, perPage: 50 });
     });
+  });
+
+  it("syncs persisted column sizing into the table state", async () => {
+    useUserConfigStore.setState({
+      ...useUserConfigStore.getState(),
+      tables: {
+        orders: {
+          columnOrder: ["id", "instrument"],
+          columnSizing: { id: 180 },
+        },
+      },
+    });
+
+    const queryClient = createTestQueryClient();
+    const { result } = renderHook(
+      () => useOrdersTable({ params: { page: 1, perPage: 50 }, columns }),
+      {
+        wrapper: createQueryClientWrapper(queryClient),
+      },
+    );
+
+    await waitFor(() => expect(result.current.orders).toEqual([sampleOrder]));
+    expect(result.current.table.getState().columnSizing).toMatchObject({ id: 180 });
   });
 });

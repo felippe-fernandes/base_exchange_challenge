@@ -1,7 +1,7 @@
 "use client";
 
 import { Plus } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Controller } from "react-hook-form";
 import { Button } from "@/components/ui/button";
 import {
@@ -24,10 +24,13 @@ import {
 import { useCreateOrder } from "@/hooks/useCreateOrder";
 import { CURRENCIES } from "@/lib/constants";
 import { FieldError } from "@/components/shared/fieldError";
+import { useUserConfigStore } from "@/stores/userConfigStore";
 
 export function CreateOrderDialog() {
   const [open, setOpen] = useState(false);
+  const preferredCurrency = useUserConfigStore((state) => state.preferredCurrency);
   const { form, onSubmit, isPending } = useCreateOrder({
+    preferredCurrency,
     onSuccess: () => setOpen(false),
   });
   const {
@@ -36,12 +39,29 @@ export function CreateOrderDialog() {
     formState: { errors },
   } = form;
 
+  useEffect(() => {
+    if (open) return;
+    form.reset({
+      instrument: "",
+      side: "buy",
+      price: { value: undefined as unknown as number, ccy: preferredCurrency },
+      quantity: undefined as unknown as number,
+    });
+  }, [form, open, preferredCurrency]);
+
   return (
     <Dialog
       open={open}
       onOpenChange={(nextOpen) => {
         setOpen(nextOpen);
-        if (!nextOpen) form.reset();
+        if (!nextOpen) {
+          form.reset({
+            instrument: "",
+            side: "buy",
+            price: { value: undefined as unknown as number, ccy: preferredCurrency },
+            quantity: undefined as unknown as number,
+          });
+        }
       }}
     >
       <DialogTrigger
@@ -128,7 +148,7 @@ export function CreateOrderDialog() {
                 control={control}
                 render={({ field }) => (
                   <Select value={field.value} onValueChange={field.onChange}>
-                    <SelectTrigger className="w-24 shrink-0 rounded-l-none">
+                    <SelectTrigger className="w-24 shrink-0 rounded-l-none" aria-label="Currency">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>

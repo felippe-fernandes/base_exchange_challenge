@@ -19,9 +19,12 @@ describe("formatters", () => {
     expect(formatNumber(12345)).toBe("12,345");
   });
 
-  it("formats dates", () => {
-    expect(formatDateTime("2026-03-01T10:30:00.000Z")).toContain("2026-03-01");
-    expect(formatDate("2026-03-01T10:30:00.000Z")).toBe("2026-03-01");
+  it("formats dates using the selected presets", () => {
+    expect(formatDateTime("2026-03-01T10:30:00.000Z", { dateFormat: "iso", timeFormat: "24h" })).toMatch(/^2026-03-01 \d{2}:\d{2}:\d{2}$/);
+    expect(formatDateTime("2026-03-01T10:30:00.000Z", { dateFormat: "br", timeFormat: "24h" })).toMatch(/^01\/03\/2026 \d{2}:\d{2}:\d{2}$/);
+    expect(formatDateTime("2026-03-01T10:30:00.000Z", { dateFormat: "us", timeFormat: "24h" })).toMatch(/^03\/01\/2026 \d{2}:\d{2}:\d{2}$/);
+    expect(formatDateTime("2026-03-01T10:30:00.000Z", { dateFormat: "text", timeFormat: "12h" })).toContain("Mar 1, 2026");
+    expect(formatDate("2026-03-01T10:30:00.000Z", { dateFormat: "iso" })).toBe("2026-03-01");
   });
 
   it("converts local date input values", () => {
@@ -41,6 +44,7 @@ describe("formatters", () => {
     const params = new URLSearchParams({ createdAt_gte: "2026-03-01T10:30" });
     expect(cleanQueryString(params)).toContain("createdAt_gte=2026-03-01T10:30");
     expect(formatFilterValue("plain")).toBe("plain");
-    expect(formatFilterValue("2026-03-01T10:30:00.000Z")).toMatch(/Mar|AM|PM/);
+    expect(formatFilterValue("2026-03-01T10:30:00.000Z", { dateFormat: "us", timeFormat: "12h" })).toMatch(/^03\/01\/2026 \d{2}:\d{2}:\d{2} (AM|PM)$/);
+    expect(formatFilterValue("2026-03-01", { dateFormat: "br" })).toBe("01/03/2026");
   });
 });

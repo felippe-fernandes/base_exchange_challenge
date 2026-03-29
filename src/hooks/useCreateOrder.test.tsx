@@ -21,6 +21,14 @@ vi.mock("sonner", () => ({
 }));
 
 describe("useCreateOrder", () => {
+  it("uses the preferred currency as the default", () => {
+    const { result } = renderHook(() => useCreateOrder({ preferredCurrency: "BRL" }), {
+      wrapper: createQueryClientWrapper(createTestQueryClient()),
+    });
+
+    expect(result.current.form.getValues("price.ccy")).toBe("BRL");
+  });
+
   it("submits orders and resets on success", async () => {
     vi.mocked(createOrder).mockResolvedValue(sampleOrder);
     const queryClient = createTestQueryClient();
@@ -30,7 +38,7 @@ describe("useCreateOrder", () => {
     });
 
     const onSuccess = vi.fn();
-    const { result } = renderHook(() => useCreateOrder({ onSuccess }), {
+    const { result } = renderHook(() => useCreateOrder({ onSuccess, preferredCurrency: "USD" }), {
       wrapper: createQueryClientWrapper(queryClient),
     });
 

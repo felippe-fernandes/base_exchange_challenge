@@ -5,6 +5,7 @@ import { formatDateTime } from "@/lib/formatters";
 import { Timeline, type TimelineItem } from "@/components/shared/timeline";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useOrderDetails } from "@/hooks/useOrderDetails";
+import { useUserConfigStore } from "@/stores/userConfigStore";
 
 interface OrderTimelineProps {
   orderId: string;
@@ -35,11 +36,13 @@ function TimelineSkeleton() {
 
 function OrderTimelineContent({ orderId }: OrderTimelineProps) {
   const { history } = useOrderDetails(orderId);
+  const dateFormat = useUserConfigStore((state) => state.dateFormat);
+  const timeFormat = useUserConfigStore((state) => state.timeFormat);
 
   const items: TimelineItem[] = history.map((entry) => ({
     label: ORDER_STATUS_LABELS[entry.toStatus] ?? entry.toStatus,
     description: entry.reason,
-    timestamp: formatDateTime(entry.timestamp),
+    timestamp: formatDateTime(entry.timestamp, { dateFormat, timeFormat }),
     variant: statusVariantMap[entry.toStatus] ?? "default",
   }));
 

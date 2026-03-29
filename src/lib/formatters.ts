@@ -1,4 +1,45 @@
 import { format } from "date-fns";
+import {
+  DEFAULT_USER_CONFIG,
+  type DateFormat,
+  type TimeFormat,
+} from "@/lib/schemas/userConfig.schema";
+
+interface DateTimePreferences {
+  dateFormat: DateFormat;
+  timeFormat: TimeFormat;
+}
+
+function parseDateInput(dateString: string): Date {
+  return /^\d{4}-\d{2}-\d{2}$/.test(dateString)
+    ? new Date(`${dateString}T00:00:00`)
+    : new Date(dateString);
+}
+
+function resolveDateTimePreferences(preferences?: Partial<DateTimePreferences>): DateTimePreferences {
+  return {
+    dateFormat: preferences?.dateFormat ?? DEFAULT_USER_CONFIG.dateFormat,
+    timeFormat: preferences?.timeFormat ?? DEFAULT_USER_CONFIG.timeFormat,
+  };
+}
+
+function formatDateByPreference(date: Date, dateFormat: DateFormat): string {
+  switch (dateFormat) {
+    case "br":
+      return format(date, "dd/MM/yyyy");
+    case "us":
+      return format(date, "MM/dd/yyyy");
+    case "text":
+      return format(date, "MMM d, yyyy");
+    case "iso":
+    default:
+      return format(date, "yyyy-MM-dd");
+  }
+}
+
+function formatTimeByPreference(date: Date, timeFormat: TimeFormat): string {
+  return timeFormat === "12h" ? format(date, "hh:mm:ss a") : format(date, "HH:mm:ss");
+}
 
 export function formatCurrency(value: number, ccy: string): string {
   return new Intl.NumberFormat("en-US", {
@@ -12,12 +53,16 @@ export function formatNumber(value: number): string {
   return new Intl.NumberFormat("en-US").format(value);
 }
 
-export function formatDateTime(dateString: string): string {
-  return format(new Date(dateString), "yyyy-MM-dd HH:mm:ss");
+export function formatDateTime(dateString: string, preferences?: Partial<DateTimePreferences>): string {
+  const date = parseDateInput(dateString);
+  const { dateFormat, timeFormat } = resolveDateTimePreferences(preferences);
+  return `${formatDateByPreference(date, dateFormat)} ${formatTimeByPreference(date, timeFormat)}`;
 }
 
-export function formatDate(dateString: string): string {
-  return format(new Date(dateString), "yyyy-MM-dd");
+export function formatDate(dateString: string, preferences?: Partial<DateTimePreferences>): string {
+  const date = parseDateInput(dateString);
+  const { dateFormat } = resolveDateTimePreferences(preferences);
+  return formatDateByPreference(date, dateFormat);
 }
 
 export function toLocalDatetime(iso?: string): string {
@@ -55,14 +100,11 @@ export function cleanQueryString(params: URLSearchParams): string {
   return params.toString().replaceAll("%3A", ":");
 }
 
-export function formatFilterValue(value: string): string {
+export function formatFilterValue(value: string, preferences?: Partial<DateTimePreferences>): string {
   if (/^\d{4}-\d{2}-\d{2}(T|$)/.test(value)) {
-    return new Date(value).toLocaleString("en-US", {
-      month: "short",
-      day: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-    });
+    return value.includes("T")
+      ? formatDateTime(value, preferences)
+      : formatDate(value, preferences);
   }
   return value;
 }

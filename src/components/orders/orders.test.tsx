@@ -9,6 +9,8 @@ import { OrderTimeline } from "./orderDetails/orderTimeline";
 import { ExecutionDetails } from "./orderTable/executionDetails";
 import { CreateOrderDialog } from "./createOrder/createOrderDialog";
 import { orderCreatedToast } from "./createOrder/orderCreatedToast";
+import { DEFAULT_USER_CONFIG } from "@/lib/schemas/userConfig.schema";
+import { useUserConfigStore } from "@/stores/userConfigStore";
 import { sampleExecution, sampleHistory, sampleOrder } from "@/test/fixtures";
 import { renderWithProviders } from "@/test/testUtils";
 
@@ -81,6 +83,13 @@ vi.mock("sonner", () => ({
 }));
 
 describe("order components", () => {
+  beforeEach(() => {
+    useUserConfigStore.setState({
+      ...DEFAULT_USER_CONFIG,
+      tableDefaults: { tableId: "", defaultSort: "", columnOrder: [] },
+    });
+  });
+
   it("renders order info, timeline and execution details", async () => {
     renderWithProviders(
       <>
@@ -93,6 +102,23 @@ describe("order components", () => {
     expect(screen.getAllByText("AAPL").length).toBeGreaterThan(0);
     expect(screen.getAllByText(/Partial|Open/).length).toBeGreaterThan(0);
     expect(await screen.findByText("Executions for AAPL #00000000")).toBeInTheDocument();
+  });
+
+  it("applies saved date and time preferences to rendered order timestamps", async () => {
+    useUserConfigStore.setState({
+      dateFormat: "br",
+      timeFormat: "12h",
+    });
+
+    renderWithProviders(
+      <>
+        <OrderInfo order={sampleOrder} />
+        <OrderTimeline orderId={sampleOrder.id} />
+        <ExecutionDetails orderId={sampleOrder.id} orderLabel="AAPL #00000000" />
+      </>,
+    );
+
+    expect(screen.getAllByText(/01\/03\/2026 \d{2}:\d{2}:\d{2} AM/).length).toBeGreaterThan(1);
   });
 
   it("renders tabs, expanded row and details dialog", () => {

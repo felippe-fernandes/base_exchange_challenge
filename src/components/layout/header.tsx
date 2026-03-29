@@ -1,4 +1,5 @@
 import { ReseedDatabaseButton } from "./reseedDatabaseButton";
+import { UserSettingsMenu } from "./userSettingsMenu";
 
 export function Header() {
   return (
@@ -7,7 +8,10 @@ export function Header() {
         <h1 className="text-lg font-semibold tracking-tight">
           BASE Exchange
         </h1>
-        <ReseedDatabaseButton />
+        <div className="flex items-center gap-2">
+          <ReseedDatabaseButton />
+          <UserSettingsMenu />
+        </div>
       </div>
     </header>
   );

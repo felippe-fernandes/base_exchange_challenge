@@ -12,7 +12,15 @@ import {
 } from "@/lib/constants";
 import { formatCurrency, formatNumber, formatDateTime } from "@/lib/formatters";
 import { getFilterValues } from "@/lib/api/orders";
+import { useUserConfigStore } from "@/stores/userConfigStore";
 import { CancelOrdersButtonCell } from "./CancelOrderButtonCell";
+
+function CreatedAtCell({ value }: { value: string }) {
+  const dateFormat = useUserConfigStore((state) => state.dateFormat);
+  const timeFormat = useUserConfigStore((state) => state.timeFormat);
+
+  return formatDateTime(value, { dateFormat, timeFormat });
+}
 
 const dataColumns = buildColumns<Order>([
   { accessorKey: "id", title: "ID", sortable: false, filterable: { type: "text" } },
@@ -67,7 +75,7 @@ const dataColumns = buildColumns<Order>([
     accessorKey: "createdAt",
     title: "Date/Time",
     filterable: { type: "dateRange" },
-    cell: ({ row }) => formatDateTime(row.getValue("createdAt")),
+    cell: ({ row }) => <CreatedAtCell value={row.getValue("createdAt")} />,
   },
 ], { fetchOptions: getFilterValues });
 
