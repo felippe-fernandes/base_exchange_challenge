@@ -4,6 +4,7 @@ import { App } from "@tinyhttp/app";
 import { createApp } from "json-server/lib/app.js";
 import { join, dirname } from "path";
 import { fileURLToPath } from "url";
+import { createRequire } from "module";
 import {
   addStatusHistory,
   applyFilters,
@@ -16,6 +17,10 @@ import {
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const dbPath = join(__dirname, "db.json");
+const require = createRequire(import.meta.url);
+const { generateOrders } = require("./seed-utils.cjs");
+const MIN_RESEED_COUNT = 1200;
+const MAX_RESEED_COUNT = 100000;
 
 const adapter = new JSONFile(dbPath);
 const db = new Low(adapter, {
@@ -125,6 +130,41 @@ root.get("/executions/by-order/:orderId", async (req, res) => {
     pages,
     items: total,
   });
+});
+
+root.post("/admin/reseed", async (req, res) => {
+  try {
+    const requestedCount = Number(req.body?.count ?? 1200);
+    if (
+      !Number.isInteger(requestedCount) ||
+      requestedCount < MIN_RESEED_COUNT ||
+      requestedCount > MAX_RESEED_COUNT
+    ) {
+      sendJson(res, 400, {
+        error: `Count must be an integer between ${MIN_RESEED_COUNT} and ${MAX_RESEED_COUNT}`,
+      });
+      return;
+    }
+
+    const nextDb = generateOrders(requestedCount);
+    const counts = {
+      orders: nextDb.orders.length,
+      statusHistory: nextDb.statusHistory.length,
+      executions: nextDb.executions.length,
+    };
+
+    db.data = nextDb;
+    await db.write();
+
+    sendJson(res, 200, {
+      message: "Database regenerated",
+      count: requestedCount,
+      ...counts,
+    });
+  } catch (err) {
+    console.error("POST /admin/reseed error:", err);
+    sendJson(res, 500, { error: String(err) });
+  }
 });
 
 function sendJson(res, status, data) {
