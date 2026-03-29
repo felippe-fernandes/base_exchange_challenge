@@ -322,7 +322,12 @@ root.patch("/orders/:id", async (req, res) => {
   await db.read();
   const order = db.data.orders.find((o) => o.id === req.params.id);
   if (!order) return sendJson(res, 404, { error: "Not found" });
+  const prevStatus = order.status;
   Object.assign(order, req.body);
+  if (req.body.status && req.body.status !== prevStatus) {
+    addStatusHistory(db, order.id, prevStatus, req.body.status, order.updatedAt || new Date().toISOString(),
+      req.body.status === "cancelled" ? "Cancelled by user" : `Status changed to ${req.body.status}`);
+  }
   await db.write();
   sendJson(res, 200, order);
 });
