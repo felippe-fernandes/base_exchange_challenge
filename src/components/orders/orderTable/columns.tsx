@@ -1,5 +1,6 @@
 "use client";
 
+import type { ColumnDef } from "@tanstack/react-table";
 import type { Order, Money } from "@/types/order";
 import { buildColumns } from "@/lib/tableUtils";
 import { StatusBadge } from "@/components/shared/statusBadge";
@@ -11,8 +12,9 @@ import {
 } from "@/lib/constants";
 import { formatCurrency, formatNumber, formatDateTime } from "@/lib/formatters";
 import { getFilterValues } from "@/lib/api/orders";
+import { CancelOrdersButtonCell } from "./CancelOrderButtonCell";
 
-export const columns = buildColumns<Order>([
+const dataColumns = buildColumns<Order>([
   { accessorKey: "id", title: "ID", sortable: false, filterable: { type: "text" } },
   { accessorKey: "instrument", title: "Instrument", filterable: { type: "checkbox", searchable: true } },
   {
@@ -68,3 +70,16 @@ export const columns = buildColumns<Order>([
     cell: ({ row }) => formatDateTime(row.getValue("createdAt")),
   },
 ], { fetchOptions: getFilterValues });
+
+const actionsColumn: ColumnDef<Order> = {
+  id: "actions",
+  header: "",
+  size: 40,
+  enableSorting: false,
+  enableColumnFilter: false,
+  enableResizing: false,
+  enableMultiSort: false,
+  cell: ({ row }) => <CancelOrdersButtonCell row={row} />,
+};
+
+export const columns = [actionsColumn, ...dataColumns];
