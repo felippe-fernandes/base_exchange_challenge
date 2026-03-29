@@ -4,7 +4,6 @@ import { useMemo, useRef } from "react";
 import { type Row, type Table as TanstackTable, flexRender } from "@tanstack/react-table";
 import { useVirtualizer } from "@tanstack/react-virtual";
 import { ChevronRight, GripVertical } from "lucide-react";
-import { cn } from "@/lib/utils";
 import { useColumnDragReorder } from "@/hooks/useColumnDragReorder";
 import {
   Table,
@@ -128,17 +127,6 @@ export function DataTable<TData>({
                                 header.getContext(),
                               )}
                         </div>
-                        {canResize && (
-                          <div
-                            onMouseDown={header.getResizeHandler()}
-                            onTouchStart={header.getResizeHandler()}
-                            onDoubleClick={() => header.column.resetSize()}
-                            className={cn(
-                              "absolute right-0 top-0 h-full w-1 cursor-col-resize select-none touch-none hover:bg-primary/50",
-                              header.column.getIsResizing() && "bg-primary",
-                            )}
-                          />
-                        )}
                       </TableHead>
                     );
                   })}

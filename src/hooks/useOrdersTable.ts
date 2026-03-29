@@ -13,7 +13,7 @@ import {
   getCoreRowModel,
   useReactTable
 } from "@tanstack/react-table";
-import { useCallback, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 const RESIZE_SAVE_DELAY = 300;
 
@@ -23,8 +23,14 @@ interface UseOrdersTableProps {
 }
 
 export function useOrdersTable({ params, columns }: UseOrdersTableProps) {
-  const { getTableConfig, setColumnOrder, setColumnSizing } = useUserConfigStore();
-  const tableConfig = getTableConfig();
+  const tables = useUserConfigStore((state) => state.tables);
+  const tableDefaults = useUserConfigStore((state) => state.tableDefaults);
+  const setColumnOrder = useUserConfigStore((state) => state.setColumnOrder);
+  const setColumnSizing = useUserConfigStore((state) => state.setColumnSizing);
+  const tableConfig = useMemo(
+    () => tables[tableDefaults.tableId] ?? { columnOrder: [], columnSizing: {} },
+    [tableDefaults.tableId, tables],
+  );
 
   const [localSizing, setLocalSizing] = useState<ColumnSizingState>(tableConfig.columnSizing);
   const [expanded, setExpanded] = useState<ExpandedState>({});
@@ -51,6 +57,10 @@ export function useOrdersTable({ params, columns }: UseOrdersTableProps) {
   );
 
   const totalItems = data?.pages[0]?.items ?? 0;
+
+  useEffect(() => {
+    setLocalSizing(tableConfig.columnSizing);
+  }, [tableConfig.columnSizing, tableDefaults.tableId]);
 
   const loadMore = useCallback(() => {
     if (!isFetchingNextPage && hasNextPage) {
