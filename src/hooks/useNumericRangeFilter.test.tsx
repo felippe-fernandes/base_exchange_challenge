@@ -1,6 +1,7 @@
-import { renderHook } from "@testing-library/react";
 import "@/test/navigation";
 import { pushMock, resetNavigationState, setNavigationState } from "@/test/navigation";
+import { renderHook } from "@testing-library/react";
+import { beforeEach, describe, expect, it } from "vitest";
 import { useNumericRangeFilter } from "./useNumericRangeFilter";
 
 describe("useNumericRangeFilter", () => {
