@@ -16,6 +16,10 @@ function parseDateInput(dateString: string): Date {
     : new Date(dateString);
 }
 
+function isDateOnly(value: string): boolean {
+  return /^\d{4}-\d{2}-\d{2}$/.test(value);
+}
+
 function resolveDateTimePreferences(preferences?: Partial<DateTimePreferences>): DateTimePreferences {
   return {
     dateFormat: preferences?.dateFormat ?? DEFAULT_USER_CONFIG.dateFormat,
@@ -67,6 +71,7 @@ export function formatDate(dateString: string, preferences?: Partial<DateTimePre
 
 export function toLocalDatetime(iso?: string): string {
   if (!iso) return "";
+  if (isDateOnly(iso)) return `${iso}T00:00`;
   const d = new Date(iso);
   const offset = d.getTimezoneOffset();
   const local = new Date(d.getTime() - offset * 60000);
@@ -85,10 +90,26 @@ export function startOfTodayIso(): string {
   return today.toISOString().slice(0, 10);
 }
 
-export function normalizeToIso(value?: string): string | undefined {
+export function toLocalDateInput(value?: string): string {
+  if (!value) return "";
+  if (isDateOnly(value)) return value;
+
+  const date = new Date(value);
+  if (isNaN(date.getTime())) return "";
+
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+}
+
+export function normalizeToIso(value?: string, bound: "start" | "end" = "start"): string | undefined {
   if (!value) return undefined;
-  const d = new Date(value);
+  const d = parseDateInput(value);
   if (isNaN(d.getTime())) return undefined;
+  if (isDateOnly(value) && bound === "end") {
+    d.setHours(23, 59, 59, 999);
+  }
   return d.toISOString();
 }
 

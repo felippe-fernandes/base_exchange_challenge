@@ -10,6 +10,7 @@ import {
   normalizeToIso,
   startOfTodayIso,
   toCompactIso,
+  toLocalDateInput,
   toLocalDatetime,
 } from "./formatters";
 
@@ -29,13 +30,16 @@ describe("formatters", () => {
 
   it("converts local date input values", () => {
     expect(toLocalDatetime("2026-03-01T10:30:00.000Z")).toHaveLength(16);
+    expect(toLocalDatetime("2026-03-01")).toBe("2026-03-01T00:00");
     expect(toCompactIso("2026-03-01T10:30")).toMatch(/^2026-03-01T\d{2}:30Z$/);
     expect(toCompactIso("")).toBe("");
+    expect(toLocalDateInput("2026-03-01")).toBe("2026-03-01");
   });
 
   it("produces helper values", () => {
     expect(startOfTodayIso()).toMatch(/^\d{4}-\d{2}-\d{2}$/);
     expect(normalizeToIso("2026-03-01")).toContain("2026-03-01T");
+    expect(normalizeToIso("2026-03-01", "end")).toContain("2026-03-");
     expect(normalizeToIso("not-a-date")).toBeUndefined();
     expect(formatOrderLabel({ instrument: "AAPL", id: "1234567890" })).toBe("AAPL #12345678");
   });
