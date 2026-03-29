@@ -365,6 +365,17 @@ Nota atual:
 - a suite automatizada completa passa
 - os thresholds globais de cobertura configurados no Vitest ainda precisam de mais trabalho para atingir a meta definida
 
+## Itens deliberadamente fora do escopo deste desafio
+
+O objetivo desta entrega foi demonstrar arquitetura, fluxo de ordens, filtros, matching, estado local e estrategia de testes. Os itens abaixo sao melhorias conhecidas para uma versao alem do escopo do challenge:
+
+- persistencia real de backend no lugar da API mock/local atual
+- suporte a reseed em ambiente hospedado, sem dependencia de escrita em `server/db.json`
+- autenticacao e autorizacao
+- atualizacao em tempo real via websocket, streaming ou mecanismo equivalente
+- hardening de producao, como observabilidade, logs estruturados, metricas, rate limiting e politicas operacionais
+- expansao adicional da suite de testes para cenarios alem dos fluxos criticos ja cobertos
+
 ## Notas sobre documentacao
 
 Os testes e a documentacao do README foram produzidos com apoio de ferramentas de IA, incluindo Codex e Claude, com revisao humana e decisoes finais aplicadas ao projeto.

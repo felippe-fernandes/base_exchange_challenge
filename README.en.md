@@ -365,6 +365,17 @@ Current note:
 - the full automated suite passes
 - coverage thresholds configured in Vitest still require more work to reach the global target
 
+## Deliberately out of scope for this challenge
+
+The goal of this submission was to demonstrate architecture, order workflows, filtering, matching logic, local state, and testing strategy. The items below are known improvements for a version beyond the scope of this challenge:
+
+- real backend persistence instead of the current local/mock API
+- hosted reseed support without relying on writes to `server/db.json`
+- authentication and authorization
+- realtime updates through websockets, streaming, or an equivalent mechanism
+- production hardening such as observability, structured logs, metrics, rate limiting, and operational policies
+- further expansion of the automated test suite beyond the critical flows already covered
+
 ## Documentation notes
 
 Tests and README documentation were produced with engineering assistance from AI tools, including Codex and Claude, with human review and final project decisions applied afterward.
