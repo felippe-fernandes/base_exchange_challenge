@@ -15,6 +15,10 @@ interface UserConfigActions {
   initDefaults: (defaults: TableDefaults) => void;
   setDefaultSort: (sort: string) => void;
   setPerPage: (perPage: number) => void;
+  setTheme: (theme: UserConfig["theme"]) => void;
+  setPreferredCurrency: (currency: string) => void;
+  setDateFormat: (dateFormat: UserConfig["dateFormat"]) => void;
+  setTimeFormat: (timeFormat: UserConfig["timeFormat"]) => void;
   getTableConfig: () => TableConfig;
   setColumnOrder: (order: string[]) => void;
   setColumnSizing: (sizing: Record<string, number>) => void;
@@ -54,6 +58,10 @@ export const useUserConfigStore = create<UserConfigState>()(
       },
       setDefaultSort: (sort) => set({ defaultSort: sort }),
       setPerPage: (perPage) => set({ perPage }),
+      setTheme: (theme) => set({ theme }),
+      setPreferredCurrency: (preferredCurrency) => set({ preferredCurrency }),
+      setDateFormat: (dateFormat) => set({ dateFormat }),
+      setTimeFormat: (timeFormat) => set({ timeFormat }),
       getTableConfig: () => {
         const state = get();
         return state.tables[state.tableDefaults.tableId] ?? DEFAULT_TABLE_CONFIG;

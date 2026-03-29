@@ -25,19 +25,24 @@ function buildOptimisticOrder(data: CreateOrderInput): Order {
 
 interface UseCreateOrderOptions {
   onSuccess?: () => void;
+  preferredCurrency?: string;
 }
 
-export function useCreateOrder({ onSuccess }: UseCreateOrderOptions) {
+function getDefaultValues(preferredCurrency: string): CreateOrderInput {
+  return {
+    instrument: "",
+    side: "buy",
+    price: { value: undefined as unknown as number, ccy: preferredCurrency },
+    quantity: undefined as unknown as number,
+  };
+}
+
+export function useCreateOrder({ onSuccess, preferredCurrency = "USD" }: UseCreateOrderOptions) {
   const queryClient = useQueryClient();
 
   const form = useForm<CreateOrderInput>({
     resolver: zodResolver(CreateOrderSchema),
-    defaultValues: {
-      instrument: "",
-      side: "buy",
-      price: { value: undefined as unknown as number, ccy: "USD" },
-      quantity: undefined as unknown as number,
-    },
+    defaultValues: getDefaultValues(preferredCurrency),
   });
 
   const mutation = useMutation({
@@ -83,7 +88,7 @@ export function useCreateOrder({ onSuccess }: UseCreateOrderOptions) {
         },
       );
       orderCreatedToast(serverOrder);
-      form.reset();
+      form.reset(getDefaultValues(preferredCurrency));
       onSuccess?.();
     },
     onError: (_err, _input, context) => {
