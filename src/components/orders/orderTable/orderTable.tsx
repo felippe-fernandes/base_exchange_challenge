@@ -33,34 +33,38 @@ export function OrderTable({ params }: OrderTableProps) {
     onViewDetails: setSelectedOrder,
   });
 
-  if (!hydrated || isLoading) return <DataTableSkeleton columns={columns.length} />;
-
   return (
     <>
       <div className="mb-6 flex items-center justify-between">
         <h2 className="text-2xl font-bold tracking-tight">Orders</h2>
         <CreateOrderDialog />
       </div>
-      <DataTableActiveFilters filterLabels={ORDER_FILTER_LABELS} tableDefaults={ORDER_TABLE_DEFAULTS} />
-      <DataTable
-        table={table}
-        onLoadMore={loadMore}
-        hasNextPage={hasNextPage}
-        isLoadingMore={isLoadingMore}
-        onRowClick={(row) => setSelectedOrder(row.original)}
-        onRowContextMenu={(e, row) => onContextMenu(e, row.original)}
-        renderSubComponent={(row) => (
-          <OrderExpandedRow
-            orderId={row.original.id}
-            orderLabel={formatOrderLabel(row.original)}
-          />
-        )}
-        footer={
-          <div className="text-muted-foreground px-2 text-sm">
-            {orders.length} of {totalItems} orders loaded
-          </div>
-        }
-      />
+      {hydrated && (
+        <DataTableActiveFilters filterLabels={ORDER_FILTER_LABELS} tableDefaults={ORDER_TABLE_DEFAULTS} />
+      )}
+      {!hydrated || isLoading ? (
+        <DataTableSkeleton columns={columns.length} />
+      ) : (
+        <DataTable
+          table={table}
+          onLoadMore={loadMore}
+          hasNextPage={hasNextPage}
+          isLoadingMore={isLoadingMore}
+          onRowClick={(row) => setSelectedOrder(row.original)}
+          onRowContextMenu={(e, row) => onContextMenu(e, row.original)}
+          renderSubComponent={(row) => (
+            <OrderExpandedRow
+              orderId={row.original.id}
+              orderLabel={formatOrderLabel(row.original)}
+            />
+          )}
+          footer={
+            <div className="text-muted-foreground px-2 text-sm">
+              {orders.length} of {totalItems} orders loaded
+            </div>
+          }
+        />
+      )}
       <OrderDetailsDialog
         order={selectedOrder}
         open={!!selectedOrder}

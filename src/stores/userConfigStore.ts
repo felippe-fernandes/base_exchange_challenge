@@ -111,11 +111,12 @@ export const useUserConfigStore = create<UserConfigState>()(
 
 export function useUserConfigHydrated() {
   const persist = useUserConfigStore.persist;
-  const [hydrated, setHydrated] = useState(() => persist?.hasHydrated() ?? false);
+  const [hydrated, setHydrated] = useState(false);
 
   useEffect(() => {
     if (!persist) return;
 
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setHydrated(persist.hasHydrated());
 
     const unsubscribeHydrate = persist.onHydrate(() => setHydrated(false));

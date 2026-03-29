@@ -45,7 +45,7 @@ export function useMultiSort() {
   const toggleSort = useCallback(
     (field: string, multi = false) => {
       const current = sortEntries.find((e) => e.field === field);
-      let entries = multi ? sortEntries.filter((e) => e.field !== field) : [];
+      const entries = multi ? sortEntries.filter((e) => e.field !== field) : [];
 
       if (!current) {
         entries.push({ field, direction: "asc" });

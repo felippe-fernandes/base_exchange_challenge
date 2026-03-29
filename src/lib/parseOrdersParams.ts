@@ -11,10 +11,13 @@ function optionalNumber(val?: string): number | undefined {
 export function parseOrdersParams(
   raw: Record<string, string | undefined>,
 ): OrdersParams {
+  const sort =
+    raw.sort === undefined ? DEFAULTS.sort : raw.sort === "none" ? "" : raw.sort;
+
   return {
     page: raw.page ? Math.max(1, Number(raw.page)) : 1,
     perPage: raw.perPage ? Number(raw.perPage) : DEFAULTS.perPage,
-    sort: raw.sort || DEFAULTS.sort,
+    sort,
     id_like: raw.id_like,
     instrument: raw.instrument,
     side: raw.side,
@@ -25,7 +28,7 @@ export function parseOrdersParams(
     quantity_lte: optionalNumber(raw.quantity_lte),
     remainingQuantity_gte: optionalNumber(raw.remainingQuantity_gte),
     remainingQuantity_lte: optionalNumber(raw.remainingQuantity_lte),
-    createdAt_gte: normalizeToIso(raw.createdAt_gte),
-    createdAt_lte: normalizeToIso(raw.createdAt_lte),
+    createdAt_gte: normalizeToIso(raw.createdAt_gte, "start"),
+    createdAt_lte: normalizeToIso(raw.createdAt_lte, "end"),
   };
 }
