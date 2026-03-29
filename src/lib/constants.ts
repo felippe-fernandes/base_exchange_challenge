@@ -37,6 +37,7 @@ export const ORDER_SIDE_COLORS: Record<OrderSide, string> = {
 };
 
 export const ORDER_TABLE_DEFAULTS: TableDefaults = {
+  tableId: "orders",
   defaultSort: "-createdAt",
   columnOrder: ORDER_COLUMNS,
 };

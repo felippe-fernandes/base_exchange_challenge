@@ -1,19 +1,20 @@
 "use client";
 
-import { useState } from "react";
-import type { Order } from "@/types/order";
-import type { OrdersParams } from "@/lib/api/orders";
 import { DataTable } from "@/components/shared/dataTable/dataTable";
 import { DataTableActiveFilters } from "@/components/shared/dataTable/dataTableActiveFilters";
-import { useOrdersTable } from "@/hooks/useOrdersTable";
-import { useUserConfigHydrated, useUserConfigStore } from "@/stores/userConfigStore";
 import { DataTableSkeleton } from "@/components/shared/dataTable/dataTableSkeleton";
-import { ORDER_TABLE_DEFAULTS, ORDER_FILTER_LABELS } from "@/lib/constants";
+import { useOrdersTable } from "@/hooks/useOrdersTable";
+import type { OrdersParams } from "@/lib/api/orders";
+import { ORDER_FILTER_LABELS, ORDER_TABLE_DEFAULTS } from "@/lib/constants";
 import { formatOrderLabel } from "@/lib/formatters";
-import { OrderDetailsDialog } from "../orderDetails/orderDetailsDialog";
+import { useUserConfigHydrated, useUserConfigStore } from "@/stores/userConfigStore";
+import type { Order } from "@/types/order";
+import { useState } from "react";
 import { CreateOrderDialog } from "../createOrder/createOrderDialog";
+import { OrderDetailsDialog } from "../orderDetails/orderDetailsDialog";
 import { columns } from "./columns";
 import { OrderExpandedRow } from "./orderExpandedRow";
+import { useOrderRowContextMenu } from "./orderRowContextMenu";
 
 useUserConfigStore.getState().initDefaults(ORDER_TABLE_DEFAULTS);
 
@@ -26,6 +27,9 @@ export function OrderTable({ params }: OrderTableProps) {
   const { table, orders, hasNextPage, isLoadingMore, isLoading, loadMore, totalItems } =
     useOrdersTable({ params, columns });
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
+  const { onContextMenu, contextMenu } = useOrderRowContextMenu({
+    onViewDetails: setSelectedOrder,
+  });
 
   if (!hydrated || isLoading) return <DataTableSkeleton columns={columns.length} />;
 
@@ -42,6 +46,7 @@ export function OrderTable({ params }: OrderTableProps) {
         hasNextPage={hasNextPage}
         isLoadingMore={isLoadingMore}
         onRowClick={(row) => setSelectedOrder(row.original)}
+        onRowContextMenu={(e, row) => onContextMenu(e, row.original)}
         renderSubComponent={(row) => (
           <OrderExpandedRow
             orderId={row.original.id}
@@ -59,6 +64,7 @@ export function OrderTable({ params }: OrderTableProps) {
         open={!!selectedOrder}
         onOpenChange={(open) => !open && setSelectedOrder(null)}
       />
+      {contextMenu}
     </>
   );
 }

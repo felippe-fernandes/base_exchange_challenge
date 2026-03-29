@@ -1,19 +1,19 @@
 "use client";
 
-import { useCallback, useMemo, useRef, useState } from "react";
+import type { OrdersParams } from "@/lib/api/orders";
+import { getOrders } from "@/lib/api/orders";
+import { queryKeys } from "@/lib/queryKeys";
+import { useUserConfigStore } from "@/stores/userConfigStore";
+import type { Order } from "@/types/order";
+import { useInfiniteQuery } from "@tanstack/react-query";
 import {
   type ColumnDef,
   type ColumnSizingState,
   type ExpandedState,
   getCoreRowModel,
-  useReactTable,
+  useReactTable
 } from "@tanstack/react-table";
-import { useInfiniteQuery } from "@tanstack/react-query";
-import type { OrdersParams } from "@/lib/api/orders";
-import { getOrders } from "@/lib/api/orders";
-import type { Order } from "@/types/order";
-import { useUserConfigStore } from "@/stores/userConfigStore";
-import { queryKeys } from "@/lib/queryKeys";
+import { useCallback, useMemo, useRef, useState } from "react";
 
 const RESIZE_SAVE_DELAY = 300;
 
@@ -23,9 +23,10 @@ interface UseOrdersTableProps {
 }
 
 export function useOrdersTable({ params, columns }: UseOrdersTableProps) {
-  const { columnOrder, setColumnOrder, columnSizing: savedSizing, setColumnSizing } = useUserConfigStore();
+  const { getTableConfig, setColumnOrder, setColumnSizing } = useUserConfigStore();
+  const tableConfig = getTableConfig();
 
-  const [localSizing, setLocalSizing] = useState<ColumnSizingState>(savedSizing);
+  const [localSizing, setLocalSizing] = useState<ColumnSizingState>(tableConfig.columnSizing);
   const [expanded, setExpanded] = useState<ExpandedState>({});
   const saveTimerRef = useRef<ReturnType<typeof setTimeout>>(undefined);
 
@@ -62,14 +63,14 @@ export function useOrdersTable({ params, columns }: UseOrdersTableProps) {
     columns,
     getRowId: (row) => row.id,
     state: {
-      columnOrder,
+      columnOrder: tableConfig.columnOrder,
       columnSizing: localSizing,
       expanded,
     },
     onExpandedChange: setExpanded,
     getRowCanExpand: () => true,
     onColumnOrderChange: (updater) => {
-      const newOrder = typeof updater === "function" ? updater(columnOrder) : updater;
+      const newOrder = typeof updater === "function" ? updater(tableConfig.columnOrder) : updater;
       setColumnOrder(newOrder);
     },
     onColumnSizingChange: (updater) => {
@@ -86,5 +87,5 @@ export function useOrdersTable({ params, columns }: UseOrdersTableProps) {
     manualFiltering: true,
   });
 
-  return { table, orders: allOrders, hasNextPage: !!hasNextPage, isLoadingMore: isFetchingNextPage, isLoading, loadMore, totalItems };
+  return { table, orders: allOrders, hasNextPage: !!hasNextPage, isLoadingMore: isFetchingNextPage, isLoading, loadMore, totalItems};
 }

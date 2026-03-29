@@ -23,9 +23,10 @@ function arraysEqual(a: string[], b: string[]) {
 
 export function DataTableActiveFilters({ filterLabels, tableDefaults }: DataTableActiveFiltersProps) {
   const { searchParams, navigate } = useSearchParamsNavigation();
-  const { columnOrder, resetColumnOrder, columnSizing, resetColumnSizing } = useUserConfigStore();
-  const isColumnOrderChanged = !arraysEqual(columnOrder, tableDefaults.columnOrder);
-  const isColumnSizingChanged = Object.keys(columnSizing).length > 0;
+  const { getTableConfig, resetColumnOrder, resetColumnSizing } = useUserConfigStore();
+  const tableConfig = getTableConfig();
+  const isColumnOrderChanged = !arraysEqual(tableConfig.columnOrder, tableDefaults.columnOrder);
+  const isColumnSizingChanged = Object.keys(tableConfig.columnSizing).length > 0;
   const isTableCustomized = isColumnOrderChanged || isColumnSizingChanged;
 
   const filterEntries: { key: string; value: string; label: string }[] = [];
