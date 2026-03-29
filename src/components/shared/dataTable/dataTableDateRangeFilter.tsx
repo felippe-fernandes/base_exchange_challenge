@@ -34,7 +34,7 @@ export function DataTableDateRangeFilter({ field, title }: DataTableDateRangeFil
         setLocalTo(toLocalDatetime(to));
       }
     }}>
-      <FilterTrigger icon={CalendarDays} isActive={hasFilter} />
+      <FilterTrigger icon={CalendarDays} isActive={hasFilter} label={`${title} filter`} />
       <PopoverContent className="w-64 p-2" align="start">
         <div className="space-y-2">
           <p className="text-xs font-medium text-muted-foreground">{title} range</p>

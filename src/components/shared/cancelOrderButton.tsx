@@ -66,6 +66,7 @@ export function CancelOrderButton({ order, variant = "default", icon }: CancelOr
         <Button
           variant="ghost"
           size="icon-xs"
+          aria-label={`Cancel order ${order.instrument}`}
           className="text-destructive hover:text-destructive"
           onClick={(e) => { e.stopPropagation(); setOpen(true); }}
         >

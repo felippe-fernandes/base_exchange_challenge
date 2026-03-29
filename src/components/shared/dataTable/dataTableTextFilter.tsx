@@ -27,7 +27,7 @@ export function DataTableTextFilter({ field, title }: DataTableTextFilterProps) 
       setOpen(isOpen);
       if (isOpen) setLocalValue(value);
     }}>
-      <FilterTrigger icon={Search} isActive={!!value} />
+      <FilterTrigger icon={Search} isActive={!!value} label={`${title} filter`} />
       <PopoverContent className="w-56 p-2" align="start">
         <div className="space-y-2">
           <Input

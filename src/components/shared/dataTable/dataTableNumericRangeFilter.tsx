@@ -33,7 +33,7 @@ export function DataTableNumericRangeFilter({ field, title }: DataTableNumericRa
         setLocalMax(max?.toString() ?? "");
       }
     }}>
-      <FilterTrigger icon={SlidersHorizontal} isActive={hasFilter} />
+      <FilterTrigger icon={SlidersHorizontal} isActive={hasFilter} label={`${title} filter`} />
       <PopoverContent className="w-56 p-2" align="start">
         <div className="space-y-2">
           <p className="text-xs font-medium text-muted-foreground">{title} range</p>

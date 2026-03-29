@@ -83,7 +83,7 @@ export function DataTableCheckboxFilter({ field, title, searchable = true, fetch
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
-      <FilterTrigger icon={Filter} isActive={selectedValues.length > 0}>
+      <FilterTrigger icon={Filter} isActive={selectedValues.length > 0} label={`${title} filter`}>
         {selectedValues.length > 0 && (
           <Badge variant="secondary" className="absolute -right-1 -top-1 h-4 min-w-4 px-0.5 text-[10px]">
             {selectedValues.length}

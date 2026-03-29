@@ -1,4 +1,4 @@
-import { useSyncExternalStore } from "react";
+import { useEffect, useState } from "react";
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
 import {
@@ -109,13 +109,23 @@ export const useUserConfigStore = create<UserConfigState>()(
   ),
 );
 
-const noop = () => () => {};
-
 export function useUserConfigHydrated() {
   const persist = useUserConfigStore.persist;
-  return useSyncExternalStore(
-    persist?.onFinishHydration ?? noop,
-    () => persist?.hasHydrated() ?? false,
-    () => false,
-  );
+  const [hydrated, setHydrated] = useState(() => persist?.hasHydrated() ?? false);
+
+  useEffect(() => {
+    if (!persist) return;
+
+    setHydrated(persist.hasHydrated());
+
+    const unsubscribeHydrate = persist.onHydrate(() => setHydrated(false));
+    const unsubscribeFinishHydration = persist.onFinishHydration(() => setHydrated(true));
+
+    return () => {
+      unsubscribeHydrate();
+      unsubscribeFinishHydration();
+    };
+  }, [persist]);
+
+  return hydrated;
 }
