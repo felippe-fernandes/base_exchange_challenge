@@ -23,7 +23,11 @@ function arraysEqual(a: string[], b: string[]) {
 
 export function DataTableActiveFilters({ filterLabels, tableDefaults }: DataTableActiveFiltersProps) {
   const { searchParams, navigate } = useSearchParamsNavigation();
-  const { getTableConfig, resetColumnOrder, resetColumnSizing } = useUserConfigStore();
+  const getTableConfig = useUserConfigStore((state) => state.getTableConfig);
+  const resetColumnOrder = useUserConfigStore((state) => state.resetColumnOrder);
+  const resetColumnSizing = useUserConfigStore((state) => state.resetColumnSizing);
+  const dateFormat = useUserConfigStore((state) => state.dateFormat);
+  const timeFormat = useUserConfigStore((state) => state.timeFormat);
   const tableConfig = getTableConfig();
   const isColumnOrderChanged = !arraysEqual(tableConfig.columnOrder, tableDefaults.columnOrder);
   const isColumnSizingChanged = Object.keys(tableConfig.columnSizing).length > 0;
@@ -81,7 +85,7 @@ export function DataTableActiveFilters({ filterLabels, tableDefaults }: DataTabl
           variant="secondary"
           className="gap-1 pl-2 pr-1 text-xs font-normal"
         >
-          {label}: {formatFilterValue(value)}
+          {label}: {formatFilterValue(value, { dateFormat, timeFormat })}
           <button
             type="button"
             className="ml-0.5 rounded-full p-0.5 hover:bg-muted"

@@ -24,6 +24,8 @@ interface OrderTableProps {
 
 export function OrderTable({ params }: OrderTableProps) {
   const hydrated = useUserConfigHydrated();
+  useUserConfigStore((state) => state.dateFormat);
+  useUserConfigStore((state) => state.timeFormat);
   const { table, orders, hasNextPage, isLoadingMore, isLoading, loadMore, totalItems } =
     useOrdersTable({ params, columns });
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);

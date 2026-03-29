@@ -1,6 +1,7 @@
 import React, { Suspense } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { render } from "@testing-library/react";
+import { ThemeProvider } from "next-themes";
 
 export function createTestQueryClient() {
   return new QueryClient({
@@ -28,11 +29,13 @@ export function renderWithProviders(
   return {
     queryClient,
     ...render(
-      <QueryClientProvider client={queryClient}>
-        <Suspense fallback={options?.suspenseFallback ?? <div>Loading...</div>}>
-          {ui}
-        </Suspense>
-      </QueryClientProvider>,
+      <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
+        <QueryClientProvider client={queryClient}>
+          <Suspense fallback={options?.suspenseFallback ?? <div>Loading...</div>}>
+            {ui}
+          </Suspense>
+        </QueryClientProvider>
+      </ThemeProvider>,
     ),
   };
 }
@@ -40,9 +43,11 @@ export function renderWithProviders(
 export function createQueryClientWrapper(queryClient = createTestQueryClient()) {
   return function QueryClientWrapper({ children }: { children: React.ReactNode }) {
     return (
-      <QueryClientProvider client={queryClient}>
-        <Suspense fallback={<div>Loading...</div>}>{children}</Suspense>
-      </QueryClientProvider>
+      <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
+        <QueryClientProvider client={queryClient}>
+          <Suspense fallback={<div>Loading...</div>}>{children}</Suspense>
+        </QueryClientProvider>
+      </ThemeProvider>
     );
   };
 }

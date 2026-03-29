@@ -8,12 +8,16 @@ import {
   ORDER_SIDE_LABELS,
 } from "@/lib/constants";
 import { formatCurrency, formatNumber, formatDateTime } from "@/lib/formatters";
+import { useUserConfigStore } from "@/stores/userConfigStore";
 
 interface OrderInfoProps {
   order: Order;
 }
 
 export function OrderInfo({ order }: OrderInfoProps) {
+  const dateFormat = useUserConfigStore((state) => state.dateFormat);
+  const timeFormat = useUserConfigStore((state) => state.timeFormat);
+
   return (
     <dl className="grid grid-cols-2 gap-x-6 gap-y-3 sm:grid-cols-3">
       <FieldDisplay label="ID">
@@ -38,8 +42,8 @@ export function OrderInfo({ order }: OrderInfoProps) {
           labelMap={ORDER_STATUS_LABELS}
         />
       </FieldDisplay>
-      <FieldDisplay label="Created">{formatDateTime(order.createdAt)}</FieldDisplay>
-      <FieldDisplay label="Updated">{formatDateTime(order.updatedAt)}</FieldDisplay>
+      <FieldDisplay label="Created">{formatDateTime(order.createdAt, { dateFormat, timeFormat })}</FieldDisplay>
+      <FieldDisplay label="Updated">{formatDateTime(order.updatedAt, { dateFormat, timeFormat })}</FieldDisplay>
     </dl>
   );
 }

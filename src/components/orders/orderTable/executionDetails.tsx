@@ -7,33 +7,7 @@ import { Input } from "@/components/ui/input";
 import { MiniTable, type MiniTableColumn } from "@/components/shared/miniTable";
 import { formatCurrency, formatNumber, formatDateTime } from "@/lib/formatters";
 import { useOrderExecutions } from "@/hooks/useOrderExecutions";
-
-const executionColumns: MiniTableColumn<Execution>[] = [
-  {
-    key: "id",
-    header: "Execution ID",
-    className: "max-w-24",
-    cell: (row) => <span className="truncate font-mono">{row.id}</span>,
-  },
-  { key: "instrument", header: "Instrument" },
-  {
-    key: "price",
-    header: "Price",
-    cell: (row) => {
-      return formatCurrency(row.price.value, row.price.ccy);
-    },
-  },
-  {
-    key: "quantity",
-    header: "Quantity",
-    cell: (row) => formatNumber(row.quantity),
-  },
-  {
-    key: "executedAt",
-    header: "Executed At",
-    cell: (row) => formatDateTime(row.executedAt),
-  },
-];
+import { useUserConfigStore } from "@/stores/userConfigStore";
 
 interface ExecutionDetailsProps {
   orderId: string;
@@ -52,8 +26,34 @@ function ExecutionSkeleton() {
 
 function ExecutionDetailsContent({ orderId, orderLabel }: ExecutionDetailsProps) {
   const [searchValue, setSearchValue] = useState("");
+  const dateFormat = useUserConfigStore((state) => state.dateFormat);
+  const timeFormat = useUserConfigStore((state) => state.timeFormat);
   const { executions, totalItems, currentPage, totalPages, search, goToPage } =
     useOrderExecutions(orderId);
+  const executionColumns: MiniTableColumn<Execution>[] = [
+    {
+      key: "id",
+      header: "Execution ID",
+      className: "max-w-24",
+      cell: (row) => <span className="truncate font-mono">{row.id}</span>,
+    },
+    { key: "instrument", header: "Instrument" },
+    {
+      key: "price",
+      header: "Price",
+      cell: (row) => formatCurrency(row.price.value, row.price.ccy),
+    },
+    {
+      key: "quantity",
+      header: "Quantity",
+      cell: (row) => formatNumber(row.quantity),
+    },
+    {
+      key: "executedAt",
+      header: "Executed At",
+      cell: (row) => formatDateTime(row.executedAt, { dateFormat, timeFormat }),
+    },
+  ];
 
   return (
     <div>
