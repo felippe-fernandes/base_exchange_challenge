@@ -1,7 +1,8 @@
-import { render, screen } from "@testing-library/react";
-import type { ReactNode } from "react";
 import { DEFAULT_USER_CONFIG } from "@/lib/schemas/userConfig.schema";
 import { useUserConfigStore } from "@/stores/userConfigStore";
+import { render, screen } from "@testing-library/react";
+import type { ReactNode } from "react";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import { Providers } from "./providers";
 
 vi.mock("@tanstack/react-query-devtools", () => ({

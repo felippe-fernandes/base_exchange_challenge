@@ -1,19 +1,22 @@
-import "@/test/navigation";
-import type React from "react";
-import { render, screen } from "@testing-library/react";
 import { sampleOrder } from "@/test/fixtures";
+import "@/test/navigation";
+import { render, screen } from "@testing-library/react";
+import type React from "react";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import { OrderTable } from "./orderTable/orderTable";
 
+const useOrdersTableMock = vi.fn(() => ({
+  table: { getRowModel: () => ({ rows: [] }) },
+  orders: [sampleOrder],
+  hasNextPage: false,
+  isLoadingMore: false,
+  isLoading: false,
+  loadMore: vi.fn(),
+  totalItems: 1,
+}));
+
 vi.mock("@/hooks/useOrdersTable", () => ({
-  useOrdersTable: () => ({
-    table: { getRowModel: () => ({ rows: [] }) },
-    orders: [sampleOrder],
-    hasNextPage: false,
-    isLoadingMore: false,
-    isLoading: false,
-    loadMore: vi.fn(),
-    totalItems: 1,
-  }),
+  useOrdersTable: () => useOrdersTableMock(),
 }));
 
 vi.mock("@/stores/userConfigStore", () => ({
@@ -49,10 +52,38 @@ vi.mock("./orderTable/orderExpandedRow", () => ({
 }));
 
 describe("OrderTable", () => {
+  beforeEach(() => {
+    useOrdersTableMock.mockReturnValue({
+      table: { getRowModel: () => ({ rows: [] }) },
+      orders: [sampleOrder],
+      hasNextPage: false,
+      isLoadingMore: false,
+      isLoading: false,
+      loadMore: vi.fn(),
+      totalItems: 1,
+    });
+  });
+
   it("renders loaded orders summary", () => {
     render(<OrderTable params={{ page: 1 }} />);
     expect(screen.getByText("Orders")).toBeInTheDocument();
     expect(screen.getByText("New Order")).toBeInTheDocument();
     expect(screen.getByText("1 of 1 orders loaded")).toBeInTheDocument();
+  });
+
+  it("keeps the header visible while loading", () => {
+    useOrdersTableMock.mockReturnValue({
+      table: { getRowModel: () => ({ rows: [] }) },
+      orders: [],
+      hasNextPage: false,
+      isLoadingMore: false,
+      isLoading: true,
+      loadMore: vi.fn(),
+      totalItems: 0,
+    });
+
+    render(<OrderTable params={{ page: 1 }} />);
+    expect(screen.getByText("Orders")).toBeInTheDocument();
+    expect(screen.getByText("New Order")).toBeInTheDocument();
   });
 });

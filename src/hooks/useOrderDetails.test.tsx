@@ -1,7 +1,8 @@
-import { renderHook, waitFor } from "@testing-library/react";
 import { getOrderHistory } from "@/lib/api/orders";
-import { createQueryClientWrapper, createTestQueryClient } from "@/test/testUtils";
 import { sampleHistory } from "@/test/fixtures";
+import { createQueryClientWrapper, createTestQueryClient } from "@/test/testUtils";
+import { renderHook, waitFor } from "@testing-library/react";
+import { describe, expect, it, vi } from "vitest";
 import { useOrderDetails } from "./useOrderDetails";
 
 vi.mock("@/lib/api/orders", () => ({

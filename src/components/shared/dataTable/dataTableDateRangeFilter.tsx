@@ -5,7 +5,7 @@ import { CalendarDays } from "lucide-react";
 import { Popover, PopoverContent } from "@/components/ui/popover";
 import { Input } from "@/components/ui/input";
 import { useDateRangeFilter } from "@/hooks/useDateRangeFilter";
-import { toLocalDatetime, toCompactIso } from "@/lib/formatters";
+import { toLocalDateInput } from "@/lib/formatters";
 import { FilterTrigger, ApplyFilterButton, ClearFilterButton } from "./dataTableFilterParts";
 
 interface DataTableDateRangeFilterProps {
@@ -16,13 +16,13 @@ interface DataTableDateRangeFilterProps {
 export function DataTableDateRangeFilter({ field, title }: DataTableDateRangeFilterProps) {
   const { from, to, setRange, clearFilter, hasFilter } = useDateRangeFilter(field);
   const [open, setOpen] = useState(false);
-  const [localFrom, setLocalFrom] = useState(toLocalDatetime(from));
-  const [localTo, setLocalTo] = useState(toLocalDatetime(to));
+  const [localFrom, setLocalFrom] = useState(toLocalDateInput(from));
+  const [localTo, setLocalTo] = useState(toLocalDateInput(to));
 
   const handleApply = () => {
     setRange(
-      localFrom ? toCompactIso(localFrom) : undefined,
-      localTo ? toCompactIso(localTo) : undefined,
+      localFrom || undefined,
+      localTo || undefined,
     );
   };
 
@@ -30,8 +30,8 @@ export function DataTableDateRangeFilter({ field, title }: DataTableDateRangeFil
     <Popover open={open} onOpenChange={(isOpen) => {
       setOpen(isOpen);
       if (isOpen) {
-        setLocalFrom(toLocalDatetime(from));
-        setLocalTo(toLocalDatetime(to));
+        setLocalFrom(toLocalDateInput(from));
+        setLocalTo(toLocalDateInput(to));
       }
     }}>
       <FilterTrigger icon={CalendarDays} isActive={hasFilter} label={`${title} filter`} />
@@ -41,7 +41,7 @@ export function DataTableDateRangeFilter({ field, title }: DataTableDateRangeFil
           <div className="space-y-1.5">
             <label className="text-xs text-muted-foreground">From</label>
             <Input
-              type="datetime-local"
+              type="date"
               value={localFrom}
               onChange={(e) => setLocalFrom(e.target.value)}
             />
@@ -49,7 +49,7 @@ export function DataTableDateRangeFilter({ field, title }: DataTableDateRangeFil
           <div className="space-y-1.5">
             <label className="text-xs text-muted-foreground">To</label>
             <Input
-              type="datetime-local"
+              type="date"
               value={localTo}
               onChange={(e) => setLocalTo(e.target.value)}
             />

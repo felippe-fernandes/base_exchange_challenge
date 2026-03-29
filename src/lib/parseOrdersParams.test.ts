@@ -37,7 +37,7 @@ describe("parseOrdersParams", () => {
       remainingQuantity_lte: 4,
     });
     expect(result.createdAt_gte).toContain("2026-03-01T");
-    expect(result.createdAt_lte).toContain("2026-03-02T");
+    expect(new Date(result.createdAt_lte!).getTime()).toBeGreaterThan(new Date("2026-03-02T23:00:00").getTime());
   });
 
   it("falls back to defaults", () => {

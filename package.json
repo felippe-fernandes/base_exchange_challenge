@@ -8,8 +8,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "test": "vitest",
-    "test:run": "vitest run",
+    "test": "vitest --configLoader native --pool threads",
+    "test:run": "vitest run --configLoader native --pool threads",
     "seed": "node server/seed.js",
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui"

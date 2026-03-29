@@ -1,18 +1,20 @@
-import React from "react";
-import { fireEvent, render, screen } from "@testing-library/react";
-import { createColumnHelper, getCoreRowModel, useReactTable } from "@tanstack/react-table";
-import "@/test/navigation";
-import { pushMock, resetNavigationState, setNavigationState } from "@/test/navigation";
 import { useUserConfigStore } from "@/stores/userConfigStore";
 import { sampleOrder } from "@/test/fixtures";
+import "@/test/navigation";
+import { pushMock, resetNavigationState, setNavigationState } from "@/test/navigation";
+import { createColumnHelper, getCoreRowModel, useReactTable } from "@tanstack/react-table";
+import { fireEvent, render, screen } from "@testing-library/react";
+import React from "react";
+import { beforeEach, describe, expect, it, vi } from "vitest";
+import { ChevronDown } from "lucide-react";
 import { DataTable } from "./dataTable";
 import { DataTableActiveFilters } from "./dataTableActiveFilters";
 import { DataTableColumnHeader } from "./dataTableColumnHeader";
 import { DataTableFilterDispatcher } from "./dataTableFilterDispatcher";
+import { ApplyFilterButton, ClearFilterButton, FilterTrigger } from "./dataTableFilterParts";
 import { DataTablePagination } from "./dataTablePagination";
 import { DataTableServerPagination } from "./dataTableServerPagination";
 import { DataTableSkeleton } from "./dataTableSkeleton";
-import { ApplyFilterButton, ClearFilterButton, FilterTrigger } from "./dataTableFilterParts";
 
 vi.mock("./dataTableCheckboxFilter", () => ({
   DataTableCheckboxFilter: () => <div>checkbox-filter</div>,
@@ -42,9 +44,9 @@ vi.mock("@/hooks/useMultiSort", () => ({
   parseSortParam: (value: string) =>
     value
       ? value.split(",").map((entry) => ({
-          field: entry.startsWith("-") ? entry.slice(1) : entry,
-          direction: entry.startsWith("-") ? "desc" : "asc",
-        }))
+        field: entry.startsWith("-") ? entry.slice(1) : entry,
+        direction: entry.startsWith("-") ? "desc" : "asc",
+      }))
       : [],
 }));
 
@@ -68,9 +70,7 @@ describe("data table components", () => {
   beforeEach(() => {
     resetNavigationState();
     useUserConfigStore.setState({
-      columnOrder: ["id", "instrument"],
-      columnSizing: { id: 100 },
-      tableDefaults: { defaultSort: "-createdAt", columnOrder: ["id", "instrument", "status"] },
+      tableDefaults: { tableId: "test-table", defaultSort: "-createdAt", columnOrder: ["id", "instrument", "status"] },
     });
   });
 
@@ -84,7 +84,7 @@ describe("data table components", () => {
     render(
       <DataTableActiveFilters
         filterLabels={{ status: "Status" }}
-        tableDefaults={{ defaultSort: "-createdAt", columnOrder: ["id", "instrument"] }}
+        tableDefaults={{ tableId: "active-filters", defaultSort: "-createdAt", columnOrder: ["id", "instrument"] }}
       />,
     );
     expect(screen.getByText(/Status: open/i)).toBeInTheDocument();
@@ -130,7 +130,7 @@ describe("data table components", () => {
         <DataTableServerPagination page={1} pages={2} items={3} perPage={10} />
         <DataTableSkeleton columns={2} rows={1} />
         <div>
-          <FilterTrigger icon={() => <span>icon</span>} isActive />
+          <FilterTrigger icon={ChevronDown} isActive />
         </div>
         <ApplyFilterButton onClick={vi.fn()} />
         <ClearFilterButton onClick={vi.fn()} />

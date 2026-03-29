@@ -1,8 +1,8 @@
-import type { ReactNode } from "react";
-import { render, screen } from "@testing-library/react";
-import userEvent from "@testing-library/user-event";
 import { DEFAULT_USER_CONFIG } from "@/lib/schemas/userConfig.schema";
 import { useUserConfigStore } from "@/stores/userConfigStore";
+import { fireEvent, render, screen } from "@testing-library/react";
+import { createContext, useContext, type ReactNode } from "react";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import { UserSettingsMenu } from "./userSettingsMenu";
 
 vi.mock("@/components/ui/dropdown-menu", () => ({
@@ -11,47 +11,39 @@ vi.mock("@/components/ui/dropdown-menu", () => ({
   DropdownMenuContent: ({ children }: { children: ReactNode }) => <div>{children}</div>,
 }));
 
-vi.mock("@/components/ui/select", () => ({
-  Select: ({
-    children,
-    value,
-    onValueChange,
-  }: {
-    children: ReactNode;
-    value: string;
-    onValueChange: (value: string) => void;
-  }) => (
-    <div data-value={value} data-on-change={onValueChange}>
-      {children}
-    </div>
-  ),
-  SelectTrigger: ({ children }: { children: ReactNode }) => <div>{children}</div>,
-  SelectValue: () => null,
-  SelectContent: ({ children }: { children: ReactNode }) => <div>{children}</div>,
-  SelectItem: ({
-    children,
-    value,
-  }: {
-    children: ReactNode;
-    value: string;
-  }) => {
-    const select = screen.getAllByText(children as string)[0]?.closest("[data-on-change]");
-    return (
-      <button
-        type="button"
-        onClick={() => {
-          const onChange = select?.getAttribute("data-on-change");
-          if (onChange) {
-            const fn = (select as unknown as { dataset?: { onChange?: unknown } }).dataset?.onChange;
-            if (typeof fn === "function") fn(value);
-          }
-        }}
-      >
-        {children}
-      </button>
-    );
-  },
-}));
+vi.mock("@/components/ui/select", () => {
+  const SelectContext = createContext<((value: string) => void) | null>(null);
+
+  return {
+    Select: ({
+      children,
+      onValueChange,
+    }: {
+      children: ReactNode;
+      value: string;
+      onValueChange: (value: string) => void;
+    }) => (
+      <SelectContext.Provider value={onValueChange}>{children}</SelectContext.Provider>
+    ),
+    SelectTrigger: ({ children }: { children: ReactNode }) => <div>{children}</div>,
+    SelectValue: ({ children }: { children?: ReactNode }) => <>{children}</>,
+    SelectContent: ({ children }: { children: ReactNode }) => <div>{children}</div>,
+    SelectItem: ({
+      children,
+      value,
+    }: {
+      children: ReactNode;
+      value: string;
+    }) => {
+      const onValueChange = useContext(SelectContext);
+      return (
+        <button type="button" onClick={() => onValueChange?.(value)}>
+          {children}
+        </button>
+      );
+    },
+  };
+});
 
 describe("UserSettingsMenu", () => {
   beforeEach(() => {
@@ -70,16 +62,13 @@ describe("UserSettingsMenu", () => {
     expect(screen.getByText("Time format")).toBeInTheDocument();
   });
 
-  it("updates user preferences from the selects", async () => {
-    const user = userEvent.setup();
+  it("updates user preferences from the selects", () => {
     render(<UserSettingsMenu />);
 
-    useUserConfigStore.getState().setTheme("dark");
-    useUserConfigStore.getState().setPreferredCurrency("BRL");
-    useUserConfigStore.getState().setDateFormat("br");
-    useUserConfigStore.getState().setTimeFormat("12h");
-
-    await user.click(screen.getByRole("button", { name: "Settings" }));
+    fireEvent.click(screen.getByRole("button", { name: "Dark" }));
+    fireEvent.click(screen.getByRole("button", { name: "BRL" }));
+    fireEvent.click(screen.getByRole("button", { name: "DD/MM/YYYY" }));
+    fireEvent.click(screen.getByRole("button", { name: "12-hour" }));
 
     expect(useUserConfigStore.getState()).toMatchObject({
       theme: "dark",

@@ -1,7 +1,8 @@
-import { renderHook } from "@testing-library/react";
+import { useUserConfigStore } from "@/stores/userConfigStore";
 import "@/test/navigation";
 import { pushMock, resetNavigationState, setNavigationState } from "@/test/navigation";
-import { useUserConfigStore } from "@/stores/userConfigStore";
+import { renderHook } from "@testing-library/react";
+import { beforeEach, describe, expect, it } from "vitest";
 import { parseSortParam, useMultiSort } from "./useMultiSort";
 
 describe("parseSortParam", () => {
@@ -17,7 +18,7 @@ describe("useMultiSort", () => {
   beforeEach(() => {
     resetNavigationState();
     useUserConfigStore.setState({
-      tableDefaults: { defaultSort: "-createdAt", columnOrder: [] },
+      tableDefaults: { tableId: "orders", defaultSort: "-createdAt", columnOrder: [] },
     });
   });
 
