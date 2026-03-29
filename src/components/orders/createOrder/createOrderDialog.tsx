@@ -148,7 +148,7 @@ export function CreateOrderDialog() {
                 control={control}
                 render={({ field }) => (
                   <Select value={field.value} onValueChange={field.onChange}>
-                    <SelectTrigger className="w-24 shrink-0 rounded-l-none">
+                    <SelectTrigger className="w-24 shrink-0 rounded-l-none" aria-label="Currency">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>

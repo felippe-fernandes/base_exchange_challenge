@@ -7,12 +7,14 @@ import { cn } from "@/lib/utils";
 interface FilterTriggerProps {
   icon: LucideIcon;
   isActive: boolean;
+  label?: string;
   children?: React.ReactNode;
 }
 
-export function FilterTrigger({ icon: Icon, isActive, children }: FilterTriggerProps) {
+export function FilterTrigger({ icon: Icon, isActive, label, children }: FilterTriggerProps) {
   return (
     <PopoverTrigger
+      aria-label={label}
       className={cn(
         "relative inline-flex h-6 w-6 items-center justify-center rounded-sm hover:bg-accent",
         isActive && "text-primary",

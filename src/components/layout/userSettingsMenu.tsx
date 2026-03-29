@@ -39,6 +39,26 @@ export function UserSettingsMenu() {
   const selectedTimeFormatLabel =
     TIME_FORMAT_OPTIONS.find((option) => option.value === timeFormat)?.label ?? timeFormat;
 
+  const handleThemeChange = (value: string | null) => {
+    if (!value) return;
+    setTheme(value as UserTheme);
+  };
+
+  const handlePreferredCurrencyChange = (value: string | null) => {
+    if (!value) return;
+    setPreferredCurrency(value);
+  };
+
+  const handleDateFormatChange = (value: string | null) => {
+    if (!value) return;
+    setDateFormat(value as DateFormat);
+  };
+
+  const handleTimeFormatChange = (value: string | null) => {
+    if (!value) return;
+    setTimeFormat(value as TimeFormat);
+  };
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger
@@ -53,8 +73,8 @@ export function UserSettingsMenu() {
         <div className="space-y-3">
           <div className="space-y-1.5">
             <p className="text-xs font-medium text-muted-foreground">Theme</p>
-            <Select value={theme} onValueChange={(value) => setTheme(value as UserTheme)}>
-              <SelectTrigger className="w-full">
+            <Select value={theme} onValueChange={handleThemeChange}>
+              <SelectTrigger className="w-full" aria-label="Theme">
                 <SelectValue>{selectedThemeLabel}</SelectValue>
               </SelectTrigger>
               <SelectContent>
@@ -69,8 +89,8 @@ export function UserSettingsMenu() {
 
           <div className="space-y-1.5">
             <p className="text-xs font-medium text-muted-foreground">Preferred currency</p>
-            <Select value={preferredCurrency} onValueChange={setPreferredCurrency}>
-              <SelectTrigger className="w-full">
+            <Select value={preferredCurrency} onValueChange={handlePreferredCurrencyChange}>
+              <SelectTrigger className="w-full" aria-label="Preferred currency">
                 <SelectValue>{preferredCurrency}</SelectValue>
               </SelectTrigger>
               <SelectContent>
@@ -85,8 +105,8 @@ export function UserSettingsMenu() {
 
           <div className="space-y-1.5">
             <p className="text-xs font-medium text-muted-foreground">Date format</p>
-            <Select value={dateFormat} onValueChange={(value) => setDateFormat(value as DateFormat)}>
-              <SelectTrigger className="w-full">
+            <Select value={dateFormat} onValueChange={handleDateFormatChange}>
+              <SelectTrigger className="w-full" aria-label="Date format">
                 <SelectValue>{selectedDateFormatLabel}</SelectValue>
               </SelectTrigger>
               <SelectContent>
@@ -101,8 +121,8 @@ export function UserSettingsMenu() {
 
           <div className="space-y-1.5">
             <p className="text-xs font-medium text-muted-foreground">Time format</p>
-            <Select value={timeFormat} onValueChange={(value) => setTimeFormat(value as TimeFormat)}>
-              <SelectTrigger className="w-full">
+            <Select value={timeFormat} onValueChange={handleTimeFormatChange}>
+              <SelectTrigger className="w-full" aria-label="Time format">
                 <SelectValue>{selectedTimeFormatLabel}</SelectValue>
               </SelectTrigger>
               <SelectContent>
